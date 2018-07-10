@@ -9,7 +9,6 @@ original_image = cv2.imread("images/peppers_color.tif")
 # img5 = cv2.imread("images/peppers_color.tif", cv2.IMREAD_COLOR)
 # img6 = cv2.imread("images/peppers_color.tif", cv2.IMREAD_LOAD_GDAL)
 # img7 = cv2.imread("images/peppers_color.tif", cv2.IMREAD_UNCHANGED)
-
 cv2.imshow("display", original_image)
 # cv2.imshow("display2", img2)
 # cv2.imshow("display3", img3)
