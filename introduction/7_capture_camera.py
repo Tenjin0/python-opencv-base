@@ -6,7 +6,7 @@ fps = 30
 size = (int(cameraCapture.get(cv2.CAP_PROP_FRAME_WIDTH)),
         int(cameraCapture.get(cv2.CAP_PROP_FRAME_HEIGHT)))
 # videoWriter = cv2.VideoWriter(
-#     './videos/MyOutputVid.avi',	cv2.VideoWriter_fourcc('I', '4', '2', '0'),	fps, size)
+# './videos/MyOutputVid.avi cv2.VideoWriter_fourcc('I', '4', '2', '0, fps, size)
 
 # Define the codec and create VideoWriter object
 # fourcc = cv2.VideoWriter_fourcc(*'XVID')
