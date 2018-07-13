@@ -15,7 +15,7 @@ class Cameo(object):
         self._windowManager.createWindow()
         while self._windowManager.isWindowCreated:
             self._captureManager.enterFrame()
-            # frame = self._captureManager.frame
+            frame = self._captureManager.frame
 
             # TODO: Filter the frame (Chapter 3)
             self._captureManager.exitFrame()
@@ -26,7 +26,7 @@ class Cameo(object):
         Handle a keypress.
 
         space  -> Take a screenshot.
-        tab    -> Start/Stop recording a screencast. 
+        tab    -> Start/Stop recording a screencast.
         escape -> Quit.
         """
 
@@ -34,7 +34,7 @@ class Cameo(object):
             self._captureManager.writeImage("screenshot.png")
         elif keycode == 9:  # tab
             if not self._captureManager.isWritingVideo:
-                self._captureManager.startWritingVideo("sreencast.avi")
+                self._captureManager.startWritingVideo("screencast.avi")
             else:
                 self._captureManager.stopWritingVideo()
         elif keycode == 27:  # escape

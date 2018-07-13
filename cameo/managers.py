@@ -4,9 +4,10 @@ import time
 
 
 class CaptureManager(object):
-    def __init(
+    def __init__(
             self, capture, previewWindowManager=None,
-            shouldMirrorPreview=False):
+            shouldMirrorPreview=False
+    ):
         self.previewWindowManager = previewWindowManager
         self.shouldMirrorPreview = shouldMirrorPreview
         self._capture = capture
@@ -49,20 +50,16 @@ class CaptureManager(object):
         """Capture the next frame, if any."""
 
         # But first, check that any previous frame as exited.
-        print('_enteredFrame', self._enteredFrame)
-        assert(not self._enteredFrame,
-               'previous enterFrame() had no matching exitFrame()')
+        assert not self._enteredFrame, 'previous enterFrame() had no matching exitFrame()'
 
         if self._capture is not None:
-            self._enteredFrame = self._capture.grap()
+            self._enteredFrame = self._capture.grab()
 
     def exitFrame(self):
         """ Draw to the window. Write to filse. Release the frame."""
-
-        if self.frame is None:
+        if self._frame is None:
             self._enteredFrame = False
             return
-
         if self._framesElapsed == 0:
             self._startTime = time.time()
         else:
