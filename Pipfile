@@ -10,6 +10,7 @@ name = "pypi"
 [packages]
 opencv-python = "*"
 numpy = "*"
+scipy = "*"
 
 [requires]
 python_version = "2.7"
