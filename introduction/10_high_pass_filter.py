@@ -3,9 +3,9 @@ import numpy as np
 from scipy import ndimage
 import os
 
-kernel_3x3 = np.array([[-1, -1, -1],
-                       [-1, 8,	-1],
-                       [-1,	-1,	-1]])
+kernel_3x3 = np.array([[0, -1, 0],
+                       [-1, 4, -1],
+                       [0,	-1,	0]])
 kernel_5x5 = np.array([[-1, -1, -1, -1, -1],
                        [-1, 1, 2, 1, -1],
                        [-1, 2, 4, 2, -1],
@@ -17,10 +17,9 @@ kernel_5x5 = np.array([[-1, -1, -1, -1, -1],
 img = cv2.imread(os.path.join(os.getcwd(), "images", "lena.png"),
 
 # A very simple and very narrow highpass filter
-kernel_3x3 = np.array([[-1, -1, -1],
-                       [-1, 8,	-1],
-                       [-1,	-1,	-1]])
-
+kernel_3x3 = np.array([[0, -1, 0],
+                       [-1, 4, -1],
+                       [0,	-1,	0]])
 highpass_3x3 = ndimage.convolve(data, kernel)
 plot(highpass_3x3, 'Simple 3x3 Highpass')
 
