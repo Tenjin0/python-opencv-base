@@ -8,7 +8,8 @@ kernel_3x3 = np.array([[-1, -1, -1],
                        [-1, 8, -1],
                        [-1,	-1,	-1]])
 
-original = cv2.imread(os.path.join(os.getcwd(), "images", "lena_color_512.tif"))
+original = cv2.imread(os.path.join(
+    os.getcwd(), "images", "lena_color_512.tif"))
 
 # converting to gray scale
 gray = cv2.cvtColor(original, cv2.COLOR_BGR2GRAY)
