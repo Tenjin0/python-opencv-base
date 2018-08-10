@@ -1,6 +1,4 @@
 import cv2
-import numpy as np
-from scipy import ndimage
 import os
 
 th = 127
@@ -24,4 +22,3 @@ cv2.imshow("original5", o5)
 # cv2.imshow("original6", o6)
 cv2.waitKey()
 cv2.destroyAllWindows()
- 

@@ -50,7 +50,8 @@ class CaptureManager(object):
         """Capture the next frame, if any."""
 
         # But first, check that any previous frame as exited.
-        assert not self._enteredFrame, 'previous enterFrame() had no matching exitFrame()'
+        assert not self._enteredFrame, 'previous enterFrame() had no matching \
+        exitFrame()'
 
         if self._capture is not None:
             self._enteredFrame = self._capture.grab()
