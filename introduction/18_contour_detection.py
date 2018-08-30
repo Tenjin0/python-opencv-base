@@ -10,17 +10,17 @@ original = np.zeros((200, 200), dtype=np.uint8)
 original[50:150, 50:150] = 255
 original[90:110, 90:110] = 128
 
-ret, thresh = cv2.threshold(original, 127, 255, 0)
+# ret, thresh = cv2.threshold(original, 127, 255, cv2.THRESH_BINARY)
 
 image, contours, hierarchy = cv2.findContours(
-    thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    original, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
 gray = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
 
 imgContour = cv2.drawContours(gray, contours, -1, (0, 255, 0), 1)
 
 cv2.imshow('original', original)
-cv2.imshow('thresh', thresh)
+# cv2.imshow('thresh', thresh)
 cv2.imshow('gray', gray)
 cv2.imshow('imgContour', imgContour)
 cv2.waitKey()
