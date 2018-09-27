@@ -1,8 +1,19 @@
 
 import cv2
+import os
+
+from datetime import datetime
 
 
-def generate():
+def createDir():
+
+    directory = "data/" + datetime.now().strftime("%Y%m%d-%H%M%S")
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    return directory
+
+def generate(storeFolder):
+
     face_detected = False
     camera = cv2.VideoCapture(0)
     face_cascade = cv2.CascadeClassifier(
@@ -34,7 +45,7 @@ def generate():
 
                     for (ex, ey, ew, eh) in eyes:
                         cv2.rectangle(img, (x + ex, y + ey),
-                                    (x + ex+ew, y + ey+eh), (0, 255, 0), 2)
+                                      (x + ex+ew, y + ey+eh), (0, 255, 0), 2)
         cv2.imshow("camera", frame)
 
         if (face_detected):
@@ -47,9 +58,20 @@ def generate():
             cv2.destroyAllWindows()
         elif key == ord("s"):
             for f in fs:
-                f = cv2.imwrite("./data/%s.pgm" % str(count), f)
+                f = cv2.imwrite(storeFolder + "/%s.pgm" % str(count), f)
                 count -= 1
 
 
+def read_images(path, sz=None):
+
+    for dirname, dirnames, filenames in os.walk(path):
+
+        for subdirname in dirnames:
+            print subdirname
+
+
 if __name__ == "__main__":
-    generate()
+
+    storeFolder = createDir()
+    # generate(storeFolder)
+    read_images("data")
