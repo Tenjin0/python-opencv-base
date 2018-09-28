@@ -1,7 +1,8 @@
 
 import cv2
 import os
-
+import sys
+import numpy as np
 from datetime import datetime
 
 
@@ -11,6 +12,7 @@ def createDir():
     if not os.path.exists(directory):
         os.makedirs(directory)
     return directory
+
 
 def generate(storeFolder):
 
@@ -64,14 +66,38 @@ def generate(storeFolder):
 
 def read_images(path, sz=None):
 
+    c = 0
+    X, y = [], []
+
     for dirname, dirnames, filenames in os.walk(path):
 
         for subdirname in dirnames:
-            print subdirname
+            subject_path = os.path.join(dirname, subdirname)
+            print subject_path
+            for filename in os.listdir(subject_path):
+                try:
+                    if (filename == ".direction"):
+                        continue
+                    filepath = os.path.join(subject_path, filename)
+                    im = cv2.imread(filepath, cv2.IMREAD_GRAYSCALE)
+
+                    if (sz is not None):
+                        im = cv2.resize(im, (sz, sz))
+
+                    X.append(np.asarray(im, dtype=np.uint8))
+                    y.append(c)
+
+                except IOError, (errno, strerror):
+                    print "I/O error({0}): {1}".format(errno, strerror)
+                except:
+                    print "Unexpected error:", sys.exc_info()[0]
+            c = c + 1
+
+    return [X, y]
 
 
 if __name__ == "__main__":
 
-    storeFolder = createDir()
+    # storeFolder = createDir()
     # generate(storeFolder)
     read_images("data")
