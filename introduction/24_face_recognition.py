@@ -3,16 +3,18 @@ import cv2
 import os
 import sys
 import numpy as np
-from datetime import datetime
+# from datetime import datetime
 
 
-def createDir():
+def createDir(dir, id):
 
-    directory = "data/" + datetime.now().strftime("%Y%m%d-%H%M%S")
+    directory = "data/"  #  + datetime.now().strftime("%Y%m%d-%H%M%S")
     if not os.path.exists(directory):
         os.makedirs(directory)
     return directory
 
+def getIdFromFolderName(folder):
+    pass
 
 def generate(storeFolder):
 
@@ -72,8 +74,8 @@ def read_images(path, sz=None):
     for dirname, dirnames, filenames in os.walk(path):
 
         for subdirname in dirnames:
+            print subdirname
             subject_path = os.path.join(dirname, subdirname)
-            print subject_path
             for filename in os.listdir(subject_path):
                 try:
                     if (filename == ".direction"):
@@ -85,7 +87,7 @@ def read_images(path, sz=None):
                         im = cv2.resize(im, (sz, sz))
 
                     X.append(np.asarray(im, dtype=np.uint8))
-                    y.append(c)
+                    y.append(0)
 
                 except IOError, (errno, strerror):
                     print "I/O error({0}): {1}".format(errno, strerror)
@@ -110,31 +112,33 @@ if __name__ == "__main__":
 
     model = cv2.face.EigenFaceRecognizer_create()
     model.train(np.asarray(X), np.asarray(y))
+
     camera = cv2.VideoCapture(0)
-    camera.release()
 
     face_cascade = cv2.CascadeClassifier(
         "./cascades/haarcascade_frontalface_default.xml")
 
     while(True):
         read, img = camera.read()
-        faces = face_cascade.detectMultiScale(img, 1.3, 5)
+        faces = face_cascade.detectMultiScale(img, 1.3, 3)
         for (x, y, w, h) in faces:
             img = cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 2)
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             roi = gray[x:x+w, y:y+h]
-            # try:
-            #     roi = cv2.resize(roi, (200, 200),
-            #                      interpolation=cv2.INTER_LINEAR)
-            #     params = model.predict(roi)
-            #     print "Label: %s, Confidence: %.2f" % (params[0], params[1])
-            #     cv2.putText(img, "toto", (x, y - 20),
-            #                 cv2.FONT_HERSHEY_SIMPLEX, 1, 255, 2)
-            # except:
-            #     continue
-            cv2.imshow("camera", img)
+            try:
+                roi = cv2.resize(roi, (200, 200),
+                                 interpolation=cv2.INTER_LINEAR)
+                params = model.predict(roi)
+                cv2.putText(img, "%s" % params[0], (x, y - 15),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.60, 255, 2)
+                cv2.putText(img, "{0:.2f}%".format(params[1] / 100), (x + w - 50, y - 15),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.60, 255, 2)
+            except:
+                cv2.putText(img, "unknown", (x, y - 15),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.60, 255, 2)
+        cv2.imshow("camera", img)
 
-            if cv2.waitKey(1000 / 12) & 0xff == ord("q"):
-                break
+        if cv2.waitKey(1000 / 50) & 0xff == ord("q"):
+            break
     cv2.destroyAllWindows()
-    camera.close()
+    camera.release()
