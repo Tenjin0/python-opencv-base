@@ -8,13 +8,15 @@ import numpy as np
 
 def createDir(dir, id):
 
-    directory = "data/"  #  + datetime.now().strftime("%Y%m%d-%H%M%S")
+    directory = "data/"  # + datetime.now().strftime("%Y%m%d-%H%M%S")
     if not os.path.exists(directory):
         os.makedirs(directory)
     return directory
 
+
 def getIdFromFolderName(folder):
     pass
+
 
 def generate(storeFolder):
 
