@@ -3,6 +3,9 @@ import sys
 import numpy as np
 import cv2
 
+DIRECTORY = "data"
+PREFIXFOLDER = "s"
+
 
 def read_images(path, sz=None):
 
@@ -36,16 +39,38 @@ def read_images(path, sz=None):
     return [X, y]
 
 
-def createDir(dir, id):
+def createDir(directory, id):
 
-    directory = "data/"  # + datetime.now().strftime("%Y%m%d-%H%M%S")
+    directory = directory + "/" + PREFIXFOLDER + id
     if not os.path.exists(directory):
         os.makedirs(directory)
     return directory
 
 
+def searchNextId(directory=None):
+
+    path_to_search_in = directory if directory is not None else DIRECTORY
+    next_id = 0
+    for dirname, dirnames, filenames in os.walk(path_to_search_in):
+        for subdirname in dirnames:
+            if subdirname[0:1] is PREFIXFOLDER:
+                folder_id = getIdFromFolderName(subdirname) 
+                next_id = folder_id if folder_id > next_id else next_id
+    return next_id + 1
+
+
 def getIdFromFolderName(folder):
-    print folder
+
+    return int(folder[len(PREFIXFOLDER):])
+
+
+def getPathFolder(id=None):
+
+    if id is not None:
+        return createDir(DIRECTORY, id)
+    else:
+        next_id = searchNextId(DIRECTORY)
+        return DIRECTORY + "/" + PREFIXFOLDER + next_id
 
 
 def generate(storeFolder):

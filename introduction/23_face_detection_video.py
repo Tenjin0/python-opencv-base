@@ -5,8 +5,8 @@ def detect():
 
     face_cascade_default = cv2.CascadeClassifier(
         './cascades/haarcascade_frontalface_default.xml')
-    face_cascade_profile = cv2.CascadeClassifier(
-        './cascades/haarcascade_profileface.xml')
+    # face_cascade_profile = cv2.CascadeClassifier(
+    #     './cascades/haarcascade_profileface.xml')
     face_cascade_alt1 = cv2.CascadeClassifier(
         './cascades/haarcascade_frontalface_alt.xml')
     eye_cascade = cv2.CascadeClassifier(
