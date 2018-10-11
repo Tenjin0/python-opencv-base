@@ -1,8 +1,8 @@
 
 import cv2
 import sys
+import os
 import numpy as np
-from helpers import read_images
 
 
 if __name__ == "__main__":

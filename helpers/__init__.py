@@ -39,12 +39,12 @@ def read_images(path, sz=None):
     return [X, y]
 
 
-def createDir(directory, id):
+def createDir(id, directory=None):
 
-    directory = directory + "/" + PREFIXFOLDER + id
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    return directory
+    a_directory = getPathFolder(directory, id)
+    if not os.path.exists(a_directory):
+        os.makedirs(a_directory)
+    return a_directory
 
 
 def searchNextId(directory=None):
@@ -54,7 +54,7 @@ def searchNextId(directory=None):
     for dirname, dirnames, filenames in os.walk(path_to_search_in):
         for subdirname in dirnames:
             if subdirname[0:1] is PREFIXFOLDER:
-                folder_id = getIdFromFolderName(subdirname) 
+                folder_id = getIdFromFolderName(subdirname)
                 next_id = folder_id if folder_id > next_id else next_id
     return next_id + 1
 
@@ -64,17 +64,22 @@ def getIdFromFolderName(folder):
     return int(folder[len(PREFIXFOLDER):])
 
 
-def getPathFolder(id=None):
+def getPathFolder(id, directory=None):
 
-    if id is not None:
-        return createDir(DIRECTORY, id)
-    else:
+    return (directory if directory is not None else DIRECTORY) + "/" + PREFIXFOLDER + id
+
+
+def generatePathFolder(id=None):
+    if id is None:
         next_id = searchNextId(DIRECTORY)
-        return DIRECTORY + "/" + PREFIXFOLDER + next_id
+    else:
+        next_id = next_id
+    return createDir(DIRECTORY, next_id)
 
 
-def generate(storeFolder):
+def generate(id=None):
 
+    storeFolder = generatePathFolder(id)
     face_detected = False
     camera = cv2.VideoCapture(0)
     face_cascade = cv2.CascadeClassifier(
