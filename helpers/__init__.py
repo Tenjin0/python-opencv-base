@@ -2,6 +2,7 @@ import os
 import sys
 import numpy as np
 import cv2
+from datetime import datetime
 
 DIRECTORY = "data"
 PREFIXFOLDER = "s"
@@ -41,7 +42,7 @@ def read_images(path, sz=None):
 
 def createDir(id, directory=None):
 
-    a_directory = getPathFolder(directory, id)
+    a_directory = getPathFolder(id, directory)
     if not os.path.exists(a_directory):
         os.makedirs(a_directory)
     return a_directory
@@ -65,21 +66,25 @@ def getIdFromFolderName(folder):
 
 
 def getPathFolder(id, directory=None):
+    global DIRECTORY
+    global PREFIXFOLDER
+    print directory if directory is not None else DIRECTORY, PREFIXFOLDER, id
+    return (directory if directory is not None else DIRECTORY) + "/" + PREFIXFOLDER + str(id)
 
-    return (directory if directory is not None else DIRECTORY) + "/" + PREFIXFOLDER + id
 
-
-def generatePathFolder(id=None):
+def generatePathFolder(id=None, directory=DIRECTORY):
+    next_id = None
     if id is None:
-        next_id = searchNextId(DIRECTORY)
+        print "searchNextId"
+        next_id = searchNextId(directory)
     else:
-        next_id = next_id
-    return createDir(DIRECTORY, next_id)
+        next_id = id
+    return createDir(next_id, directory)
 
 
-def generate(id=None):
+def generate(id=None, count=1):
 
-    storeFolder = generatePathFolder(id)
+    storeFolder = generatePathFolder(id=id)
     face_detected = False
     camera = cv2.VideoCapture(0)
     face_cascade = cv2.CascadeClassifier(
@@ -87,9 +92,10 @@ def generate(id=None):
     eye_cascade = cv2.CascadeClassifier(
         './cascades/haarcascade_eye.xml')
 
-    count = 10
-
     while(True):
+        if count == 0:
+            break
+
         wait = 1000 / 100
         ret, frame = camera.read()
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -124,5 +130,6 @@ def generate(id=None):
             cv2.destroyAllWindows()
         elif key == ord("s"):
             for f in fs:
-                f = cv2.imwrite(storeFolder + "/%s.pgm" % str(count), f)
+                filename = datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + str(count)
+                f = cv2.imwrite(storeFolder + "/%s.pgm" % filename, f)
                 count -= 1
