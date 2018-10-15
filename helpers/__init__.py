@@ -12,7 +12,6 @@ def read_images(path, sz=None):
 
     c = 0
     X, y = [], []
-
     for dirname, dirnames, filenames in os.walk(path):
 
         for subdirname in dirnames:
@@ -66,23 +65,23 @@ def getIdFromFolderName(folder):
 
 
 def getPathFolder(id, directory=None):
+
     global DIRECTORY
     global PREFIXFOLDER
-    print directory if directory is not None else DIRECTORY, PREFIXFOLDER, id
     return (directory if directory is not None else DIRECTORY) + "/" + PREFIXFOLDER + str(id)
 
 
 def generatePathFolder(id=None, directory=DIRECTORY):
+
     next_id = None
     if id is None:
-        print "searchNextId"
         next_id = searchNextId(directory)
     else:
         next_id = id
     return createDir(next_id, directory)
 
 
-def generate(id=None, count=1):
+def generate(id=None, count=10):
 
     storeFolder = generatePathFolder(id=id)
     face_detected = False

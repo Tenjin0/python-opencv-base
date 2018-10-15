@@ -8,6 +8,7 @@ this_dir = os.path.dirname(os.path.abspath(__file__))
 needed_dir = os.path.abspath(os.path.join(this_dir, '../.'))
 sys.path.insert(0, needed_dir)
 
+# https://www.superdatascience.com/opencv-face-recognition/
 
 from helpers import read_images
 
@@ -23,8 +24,13 @@ if __name__ == "__main__":
     if len(sys.argv) == 3:
         out_dir = sys.argv[2]
 
-    model = cv2.face.EigenFaceRecognizer_create()
-    model.train(np.asarray(X), np.asarray(y))
+    model1 = cv2.face.EigenFaceRecognizer_create()
+    # model2 = cv2.face.FisherFaceRecognizer_create()
+    model3 = cv2.face.LBPHFaceRecognizer_create()
+
+    model1.train(np.asarray(X), np.asarray(y))
+    # model2.train(np.asarray(X), np.asarray(y))
+    model3.train(np.asarray(X), np.asarray(y))
 
     camera = cv2.VideoCapture(0)
 
@@ -41,11 +47,27 @@ if __name__ == "__main__":
             try:
                 roi = cv2.resize(roi, (200, 200),
                                  interpolation=cv2.INTER_LINEAR)
-                params = model.predict(roi)
-                cv2.putText(img, "%s" % params[0], (x, y - 15),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.60, 255, 2)
-                cv2.putText(img, "{0:.2f}%".format(params[1] / 100), (x + w - 50, y - 15),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.60, 255, 2)
+                params1 = model1.predict(roi)
+                # params2 = model2.predict(roi)
+                params3 = model3.predict(roi)
+                # print params1
+                # print params3
+                cv2.putText(img, "%s" % params1[0], (x, y - 15),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.60, (255, 0, 0), 2)
+                cv2.putText(img, "{0:.2f}%".format(params1[1] / 100), (x + w - 50, y - 15),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.60, (255, 0, 0), 2)
+
+                # cv2.putText(img, "%s" % params2[0], (x, y - 15),
+                #             cv2.FONT_HERSHEY_SIMPLEX, 0.60, (0, 255, 0), 2)
+                # cv2.putText(img, "{0:.2f}%".format(params2[1] / 100), (x + w - 50, y - 15),
+                #             cv2.FONT_HERSHEY_SIMPLEX, 0.60, (0, 255, 0), 2)
+
+                cv2.putText(img, "%s" % params3[0], (x, y - 30),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.60, (0, 0, 255), 2)
+                cv2.putText(img, "{0:.2f}%".format(params3[1] / 100), (x + w - 50, y - 30),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.60, (0, 0, 255), 2)
+
+
             except:
                 cv2.putText(img, "unknown", (x, y - 15),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.60, 255, 2)
