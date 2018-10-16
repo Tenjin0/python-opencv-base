@@ -132,3 +132,6 @@ def generate(id=None, count=10):
                 filename = datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + str(count)
                 f = cv2.imwrite(storeFolder + "/%s.pgm" % filename, f)
                 count -= 1
+
+    def detect_corners(image):
+        
