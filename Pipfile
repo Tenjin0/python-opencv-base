@@ -5,13 +5,11 @@ name = "pypi"
 
 [dev-packages]
 "flake8" = "*"
-"autopep8" = "*"
 
 [packages]
-opencv-python = "*"
 numpy = "*"
 scipy = "*"
-opencv-contrib-python = "*"
+opencv-python = "*"
 
 [requires]
-python_version = "2.7"
+python_version = "3.7"

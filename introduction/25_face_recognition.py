@@ -9,7 +9,6 @@ needed_dir = os.path.abspath(os.path.join(this_dir, '../.'))
 sys.path.insert(0, needed_dir)
 
 # https://www.superdatascience.com/opencv-face-recognition/
-
 from helpers import read_images
 
 if __name__ == "__main__":
