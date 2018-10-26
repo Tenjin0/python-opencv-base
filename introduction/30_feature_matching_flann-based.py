@@ -4,28 +4,51 @@ import cv2
 import sys
 from matplotlib import pyplot as plt
 
-img1 = cv2.imread('images/manowar_logo.png', cv2.IMREAD_GRAYSCALE)
-img2 = cv2.imread('images/manowar_single.jpg', cv2.IMREAD_GRAYSCALE)
+FLANN_INDEX_KDTREE = 1
+FLANN_INDEX_LSH    = 6
+index_params= dict(algorithm = FLANN_INDEX_LSH,
+                   table_number = 6, # 12
+                   key_size = 12,     # 20
+                   multi_probe_level = 1) #2
+FLANN_INDEX_KDTREE = 0
+index_params2 = dict(algorithm = FLANN_INDEX_KDTREE, trees = 5)
+
+# queryImage = cv2.imread('images/manowar_single.jpg', cv2.IMREAD_GRAYSCALE)
+# trainingImage = cv2.imread('images/manowar_logo.png', cv2.IMREAD_GRAYSCALE)
+queryImage = cv2.imread('images/bathory_album.jpg',0)
+trainingImage = cv2.imread('images/bathory_vinyls.jpg',0)
 
 orb = cv2.ORB_create()
 
 if __name__ == "__main__":
 
-    if img1 is None:
-        print("img1 not found")
+    if queryImage is None:
+        print("queryImage not found")
         sys.exit()
 
-    if img2 is None:
-        print("img2 not found")
+    if trainingImage is None:
+        print("trainingImage not found")
         sys.exit()
 
-    kp1, des1 = orb.detectAndCompute(img1, None)
-    kp2, des2 = orb.detectAndCompute(img2, None)
+    kp1, des1 = orb.detectAndCompute(queryImage, None)
+    kp2, des2 = orb.detectAndCompute(trainingImage, None)
 
-    bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=False)
+    # FLANN matcher parameters
+    flann = cv2.FlannBasedMatcher(index_params, {})
+    matches = flann.knnMatch(des1,des2,k=2)
+    # prepare an empty mask to draw good matches
+    matchesMask = [[0,0] for i in range(len(matches))]
+    for i, match in enumerate(matches):
+        if len(match) > 1 and match[0].distance < 0.7* match[1].distance:
+            matchesMask[i] = [1, 0]
+    
+    drawParams = dict(
+        matchColor = (0, 255, 0),
+        singlePointColor = (255, 0, 0),
+        matchesMask = matchesMask,
+        flags = 0
+    )
 
-    matches = bf.knnMatch(des1, des2, k=2)
+    resultImage = cv2.drawMatchesKnn(queryImage, kp1, trainingImage, kp2, matches, None, **drawParams)
 
-    img3 = cv2.drawMatchesKnn(img1, kp1, img2, kp2, matches, img2, flags=2)
-
-    plt.imshow(img3), plt.show()
+    plt.imshow(resultImage), plt.show()
