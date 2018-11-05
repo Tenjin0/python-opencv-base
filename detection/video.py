@@ -174,8 +174,6 @@ if __name__ == '__main__':
     import sys
     import getopt
 
-    print(__doc__)
-
     args, sources = getopt.getopt(sys.argv[1:], '', 'shotdir=')
     args = dict(args)
     shotdir = args.get('--shotdir', '.')
