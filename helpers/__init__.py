@@ -15,7 +15,6 @@ def read_images(path, sz=None):
     for dirname, dirnames, filenames in os.walk(path):
 
         for subdirname in dirnames:
-            print subdirname
             subject_path = os.path.join(dirname, subdirname)
             for filename in os.listdir(subject_path):
                 try:
@@ -30,10 +29,11 @@ def read_images(path, sz=None):
                     X.append(np.asarray(im, dtype=np.uint8))
                     y.append(0)
 
-                except IOError, (errno, strerror):
-                    print "I/O error({0}): {1}".format(errno, strerror)
+                except IOError as err:
+                    errno, strerror = e.args
+                    print("I/O error({0}): {1}".format(errno, strerror))
                 except:
-                    print "Unexpected error:", sys.exc_info()[0]
+                    print("Unexpected error:", sys.exc_info()[0])
             c = c + 1
 
     return [X, y]
@@ -81,8 +81,8 @@ def generatePathFolder(id=None, directory=DIRECTORY):
     return createDir(next_id, directory)
 
 
-def generate(id=None, count=10):
-
+def generate(id=None, count=10, fileFormat="pgm"):
+    print(id, count, fileFormat)
     storeFolder = generatePathFolder(id=id)
     face_detected = False
     camera = cv2.VideoCapture(0)
@@ -95,13 +95,13 @@ def generate(id=None, count=10):
         if count == 0:
             break
 
-        wait = 1000 / 100
+        wait = int(1000 / 100)
         ret, frame = camera.read()
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = face_cascade.detectMultiScale(gray, 1.3, 3)
         face_detected = False
         fs = []
-
+ 
         for (x, y, w, h) in faces:
 
             face_gray = gray[y:y+h, x:x+w]
@@ -129,9 +129,13 @@ def generate(id=None, count=10):
             cv2.destroyAllWindows()
         elif key == ord("s"):
             for f in fs:
-                filename = datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + str(count)
-                f = cv2.imwrite(storeFolder + "/%s.pgm" % filename, f)
+                filename = datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + str(count) + "." + fileFormat
+                f = cv2.imwrite(storeFolder + "/%s" % filename, f)
                 count -= 1
+        elif key == ord("a"):
+            filename = datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + str(count) + "." + fileFormat
+            f = cv2.imwrite(storeFolder + "/%s" % filename, frame)
+            count -= 1
 
     def detect_corners(image):
-        
+        pass
