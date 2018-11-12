@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     queryImage = cv2.imread('images/elephant.jpg')
     matcher = cv2.FlannBasedMatcher(flann_params, {})  # bug : need to pass empty dict (#1329)
-
+    imageToTest = cv2.imread('data/s2/20181112-102950-3.jpg')
     while True:
         ret, frame = self.cap.read()
         if not ret:
