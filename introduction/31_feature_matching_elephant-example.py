@@ -1,5 +1,6 @@
 import sys
 import cv2
+import numpy as np
 
 PY3 = sys.version_info[0] == 3
 
@@ -23,25 +24,29 @@ if __name__ == "__main__":
         video_src = 0
     cap = cv2.VideoCapture(video_src)
 
-    targetImage = cv2.imread('images/elephant.jpg')
+    targetImage = cv2.imread('images/elephant.jpg', 0)
     matcher = cv2.FlannBasedMatcher(flann_params, {})  # bug : need to pass empty dict (#1329)
-    imageToTest = cv2.imread('data/s2/20181112-102950-3.jpg')
-
+    imageToTest = cv2.imread('data/s2/20181112-102950-3.jpg', 0)
     targets = []
     frame_points = []
 
     detector = cv2.ORB_create( nfeatures = 1000 )
 
-    kpTarget, descTarget = detector.detectAndCompute(queryImage, None)
-
+    kpTarget, descTarget = detector.detectAndCompute(targetImage, None)
     if descTarget is None:  # detectAndCompute returns descs=None if not keypoints found
         descTarget = []
     else:
         descTarget = np.uint8(descTarget)
+    matcher.add([descTarget])
 
-    matches = matcher.knnMatch(descTarget, k = 2)
+
+    kpToTest, descToTest = detector.detectAndCompute(imageToTest, None)
+
+    matches = matcher.knnMatch(descToTest, k = 2)
     matches = [m[0] for m in matches if len(m) == 2 and m[0].distance < m[1].distance * 0.75]
-
+    
+    for m in matches:
+        print(m.imgIdx, m.trainIdx, m.queryIdx, len(m), m.distance)
     # while True:
     #     ret, frame = self.cap.read()
     #     if not ret:
