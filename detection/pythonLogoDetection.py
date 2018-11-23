@@ -2,10 +2,6 @@
 # Python 2/3 compatibility
 from __future__ import print_function
 import sys
-PY3 = sys.version_info[0] == 3
-
-if PY3:
-    xrange = range
 
 import numpy as np
 import cv2
@@ -17,13 +13,17 @@ from collections import namedtuple
 import video
 import common
 
+PY3 = sys.version_info[0] == 3
+
+if PY3:
+    xrange = range
 
 FLANN_INDEX_KDTREE = 1
-FLANN_INDEX_LSH    = 6
-flann_params= dict(algorithm = FLANN_INDEX_LSH,
-                   table_number = 6, # 12
-                   key_size = 12,     # 20
-                   multi_probe_level = 1) #2
+FLANN_INDEX_LSH = 6
+flann_params = dict(algorithm=FLANN_INDEX_LSH,
+                    table_number=6,  # 12
+                    key_size=12,     # 20
+                    multi_probe_level=1)  # 2
 
 MIN_MATCH_COUNT = 10
 
@@ -34,7 +34,8 @@ MIN_MATCH_COUNT = 10
   descrs    - their descriptors
   data      - some user-provided data
 '''
-PlanarTarget = namedtuple('PlaneTarget', 'image, rect, keypoints, descrs, data')
+PlanarTarget = namedtuple(
+    'PlaneTarget', 'image, rect, keypoints, descrs, data')
 
 '''
   target - reference to PlanarTarget
@@ -45,10 +46,12 @@ PlanarTarget = namedtuple('PlaneTarget', 'image, rect, keypoints, descrs, data')
 '''
 TrackedTarget = namedtuple('TrackedTarget', 'target, p0, p1, H, quad')
 
+
 class PlaneTracker:
     def __init__(self):
-        self.detector = cv2.ORB_create( nfeatures = 1000 )
-        self.matcher = cv2.FlannBasedMatcher(flann_params, {})  # bug : need to pass empty dict (#1329)
+        self.detector = cv2.ORB_create(nfeatures=1000)
+        # bug : need to pass empty dict (#1329)
+        self.matcher = cv2.FlannBasedMatcher(flann_params, {})
         self.targets = []
         self.frame_points = []
 
@@ -64,7 +67,8 @@ class PlaneTracker:
                 descs.append(desc)
         descs = np.uint8(descs)
         self.matcher.add([descs])
-        target = PlanarTarget(image = image, rect=rect, keypoints = points, descrs=descs, data=data)
+        target = PlanarTarget(image=image, rect=rect,
+                              keypoints=points, descrs=descs, data=data)
         self.targets.append(target)
 
     def clear(self):
@@ -77,8 +81,9 @@ class PlaneTracker:
         self.frame_points, frame_descrs = self.detect_features(frame)
         if len(self.frame_points) < MIN_MATCH_COUNT:
             return []
-        matches = self.matcher.knnMatch(frame_descrs, k = 2)
-        matches = [m[0] for m in matches if len(m) == 2 and m[0].distance < m[1].distance * 0.75]
+        matches = self.matcher.knnMatch(frame_descrs, k=2)
+        matches = [m[0] for m in matches if len(
+            m) == 2 and m[0].distance < m[1].distance * 0.75]
         if len(matches) < MIN_MATCH_COUNT:
             return []
         matches_by_id = [[] for _ in xrange(len(self.targets))]
@@ -100,11 +105,12 @@ class PlaneTracker:
 
             x0, y0, x1, y1 = target.rect
             quad = np.float32([[x0, y0], [x1, y0], [x1, y1], [x0, y1]])
-            quad = cv2.perspectiveTransform(quad.reshape(1, -1, 2), H).reshape(-1, 2)
+            quad = cv2.perspectiveTransform(
+                quad.reshape(1, -1, 2), H).reshape(-1, 2)
 
             track = TrackedTarget(target=target, p0=p0, p1=p1, H=H, quad=quad)
             tracked.append(track)
-        tracked.sort(key = lambda t: len(t.p0), reverse=True)
+        tracked.sort(key=lambda t: len(t.p0), reverse=True)
         return tracked
 
     def detect_features(self, frame):
@@ -141,7 +147,8 @@ class App:
             if playing:
                 tracked = self.tracker.track(self.frame)
                 for tr in tracked:
-                    cv2.polylines(vis, [np.int32(tr.quad)], True, (255, 255, 255), 2)
+                    cv2.polylines(vis, [np.int32(tr.quad)],
+                                  True, (255, 255, 255), 2)
                     for (x, y) in np.int32(tr.p1):
                         cv2.circle(vis, (x, y), 2, (255, 255, 255))
 
@@ -154,6 +161,7 @@ class App:
                 self.tracker.clear()
             if ch == 27:
                 break
+
 
 if __name__ == '__main__':
     print(__doc__)

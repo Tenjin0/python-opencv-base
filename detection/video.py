@@ -43,8 +43,9 @@ from time import clock
 # local modules
 import common
 
+
 class VideoSynthBase(object):
-    def __init__(self, size=None, noise=0.0, bg = None, **params):
+    def __init__(self, size=None, noise=0.0, bg=None, **params):
         self.bg = None
         self.frame_size = (640, 480)
         if bg is not None:
@@ -81,6 +82,7 @@ class VideoSynthBase(object):
     def isOpened(self):
         return True
 
+
 class Chess(VideoSynthBase):
     def __init__(self, **kw):
         super(Chess, self).__init__(**kw)
@@ -98,14 +100,15 @@ class Chess(VideoSynthBase):
 
         fx = 0.9
         self.K = np.float64([[fx*w, 0, 0.5*(w-1)],
-                        [0, fx*w, 0.5*(h-1)],
-                        [0.0,0.0,      1.0]])
+                             [0, fx*w, 0.5*(h-1)],
+                             [0.0, 0.0,      1.0]])
 
         self.dist_coef = np.float64([-0.2, 0.1, 0, 0])
         self.t = 0
 
-    def draw_quads(self, img, quads, color = (0, 255, 0)):
-        img_quads = cv2.projectPoints(quads.reshape(-1, 3), self.rvec, self.tvec, self.K, self.dist_coef) [0]
+    def draw_quads(self, img, quads, color=(0, 255, 0)):
+        img_quads = cv2.projectPoints(
+            quads.reshape(-1, 3), self.rvec, self.tvec, self.K, self.dist_coef)[0]
         img_quads.shape = quads.shape[:2] + (2,)
         for q in img_quads:
             cv2.fillConvexPoly(img, np.int32(q*4), color, cv2.LINE_AA, shift=2)
@@ -132,13 +135,13 @@ class Chess(VideoSynthBase):
 classes = dict(chess=Chess)
 
 presets = dict(
-    empty = 'synth:',
-    lena = 'synth:bg=../data/lena.jpg:noise=0.1',
-    chess = 'synth:class=chess:bg=../data/lena.jpg:noise=0.1:size=640x480'
+    empty='synth:',
+    lena='synth:bg=../data/lena.jpg:noise=0.1',
+    chess='synth:class=chess:bg=../data/lena.jpg:noise=0.1:size=640x480'
 )
 
 
-def create_capture(source = 0, fallback = presets['chess']):
+def create_capture(source=0, fallback=presets['chess']):
     '''source: <int> or '<int>|<filename>|synth [:<param_name>=<value> [:...]]'
     '''
     source = str(source).strip()
@@ -149,15 +152,19 @@ def create_capture(source = 0, fallback = presets['chess']):
         del chunks[0]
 
     source = chunks[0]
-    try: source = int(source)
-    except ValueError: pass
-    params = dict( s.split('=') for s in chunks[1:] )
+    try:
+        source = int(source)
+    except ValueError:
+        pass
+    params = dict(s.split('=') for s in chunks[1:])
 
     cap = None
     if source == 'synth':
         Class = classes.get(params.get('class', None), VideoSynthBase)
-        try: cap = Class(**params)
-        except: pass
+        try:
+            cap = Class(**params)
+        except:
+            pass
     else:
         cap = cv2.VideoCapture(source)
         if 'size' in params:
@@ -170,6 +177,7 @@ def create_capture(source = 0, fallback = presets['chess']):
             return create_capture(fallback, None)
     return cap
 
+
 if __name__ == '__main__':
     import sys
     import getopt
@@ -178,7 +186,7 @@ if __name__ == '__main__':
     args = dict(args)
     shotdir = args.get('--shotdir', '.')
     if len(sources) == 0:
-        sources = [ 0 ]
+        sources = [0]
 
     caps = list(map(create_capture, sources))
     shot_idx = 0
