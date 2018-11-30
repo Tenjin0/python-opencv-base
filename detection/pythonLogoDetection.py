@@ -12,6 +12,7 @@ from collections import namedtuple
 # local modules
 import video
 import common
+import matplotlib.pyplot as plt
 
 PY3 = sys.version_info[0] == 3
 
@@ -45,6 +46,8 @@ PlanarTarget = namedtuple(
   quad   - target bounary quad in input frame
 '''
 TrackedTarget = namedtuple('TrackedTarget', 'target, p0, p1, H, quad')
+
+targetImage = cv2.imread('images/elephant.png', 0)
 
 
 class PlaneTracker:
@@ -86,6 +89,11 @@ class PlaneTracker:
             m) == 2 and m[0].distance < m[1].distance * 0.75]
         if len(matches) < MIN_MATCH_COUNT:
             return []
+        # if (self.targets[0].keypoints is not None):
+        #     img3 = cv2.drawMatchesKnn(targetImage, self.targets[0].keypoints,
+        #                               frame, self.frame_points, matches, None,
+        #                               flags=2)
+
         matches_by_id = [[] for _ in xrange(len(self.targets))]
         for m in matches:
             matches_by_id[m.imgIdx].append(m)
@@ -127,7 +135,7 @@ class App:
         self.frame = None
         self.paused = False
         self.tracker = PlaneTracker()
-
+        self.tracker.add_target(targetImage, (0, 0, 210, 210,), )
         cv2.namedWindow('plane')
         self.rect_sel = common.RectSelector('plane', self.on_rect)
 
