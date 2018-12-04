@@ -107,6 +107,7 @@ class PlaneTracker:
             p0, p1 = np.float32((p0, p1))
             H, status = cv2.findHomography(p0, p1, cv2.RANSAC, 3.0)
             status = status.ravel() != 0
+
             if status.sum() < MIN_MATCH_COUNT:
                 continue
             p0, p1 = p0[status], p1[status]
@@ -115,7 +116,7 @@ class PlaneTracker:
             quad = np.float32([[x0, y0], [x1, y0], [x1, y1], [x0, y1]])
             quad = cv2.perspectiveTransform(
                 quad.reshape(1, -1, 2), H).reshape(-1, 2)
-
+            print(quad)
             track = TrackedTarget(target=target, p0=p0, p1=p1, H=H, quad=quad)
             tracked.append(track)
         tracked.sort(key=lambda t: len(t.p0), reverse=True)
@@ -135,7 +136,7 @@ class App:
         self.frame = None
         self.paused = False
         self.tracker = PlaneTracker()
-        self.tracker.add_target(targetImage, (0, 0, 210, 210,), )
+        self.tracker.add_target(targetImage, (0, 0, 210, 210))
         cv2.namedWindow('plane')
         self.rect_sel = common.RectSelector('plane', self.on_rect)
 

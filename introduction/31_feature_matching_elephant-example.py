@@ -55,7 +55,7 @@ if __name__ == "__main__":
 
     good = []
     for m,n in matches:
-        if m.distance < 0.75*n.distance:
+        if m.distance < 0.75 * n.distance:
             good.append([m])
 
     good.sort(key=lambda x: x[0].distance)
