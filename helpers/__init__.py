@@ -97,11 +97,14 @@ def generate(id=None, count=10, fileFormat="pgm"):
 
         wait = int(1000 / 100)
         ret, frame = camera.read()
+
+        copy = frame.copy()
+
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = face_cascade.detectMultiScale(gray, 1.3, 3)
         face_detected = False
         fs = []
- 
+
         for (x, y, w, h) in faces:
 
             face_gray = gray[y:y+h, x:x+w]
@@ -111,13 +114,13 @@ def generate(id=None, count=10, fileFormat="pgm"):
                 if len(eyes) >= 2:
                     face_detected = True
                     img = cv2.rectangle(
-                        frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
+                        copy, (x, y), (x+w, y+h), (255, 0, 0), 2)
                     fs.append(cv2.resize(gray[y:y+h, x:x+w], (200, 200)))
 
                     for (ex, ey, ew, eh) in eyes:
                         cv2.rectangle(img, (x + ex, y + ey),
                                       (x + ex+ew, y + ey+eh), (0, 255, 0), 2)
-        cv2.imshow("camera", frame)
+        cv2.imshow("camera", copy)
 
         if (face_detected):
             wait = 0
@@ -132,7 +135,7 @@ def generate(id=None, count=10, fileFormat="pgm"):
                 filename = datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + str(count) + "." + fileFormat
                 f = cv2.imwrite(storeFolder + "/%s" % filename, f)
                 count -= 1
-        elif key == ord("a"):
+        elif key == ord("f"):
             filename = datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + str(count) + "." + fileFormat
             f = cv2.imwrite(storeFolder + "/%s" % filename, frame)
             count -= 1

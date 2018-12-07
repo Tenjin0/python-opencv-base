@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 PY3 = sys.version_info[0] == 3
 
 if PY3:
@@ -18,7 +19,7 @@ flann_params = dict(algorithm=FLANN_INDEX_LSH,
 MIN_MATCH_COUNT = 10
 
 
-def convertTuple(a_tuple):
+def tuple_float_to_int(a_tuple):
     return tuple(int(i) for i in a_tuple)
 
 
@@ -30,49 +31,33 @@ if __name__ == "__main__":
         video_src = 0
     cap = cv2.VideoCapture(video_src)
 
-    targetImage = cv2.imread('images/elephant.png', 0)
-    imageToTest = cv2.imread('data/s2/20181112-102950-3.jpg', 0)
-    # bug : need to pass empty dict (#1329)
-    matcher = cv2.FlannBasedMatcher(flann_params, {})
-    # matcher = cv2.BFMatcher()
-    targets = []
-    frame_points = []
-
     detector = cv2.ORB_create(nfeatures=1000)
 
-    test_mask = np.ones(targetImage.shape, np.uint8)
+    matcher = cv2.FlannBasedMatcher(flann_params, {})
 
-    kpsTarget, descTarget = detector.detectAndCompute(targetImage, None)
-    if descTarget is None:  # detectAndCompute returns descs=None if not keypoints found
-        descTarget = []
-    else:
-        descTarget = np.uint8(descTarget)
-    matcher.add([descTarget])
+    trainingImage = cv2.imread('images/elephant.png')
+    trainingCopy = cv2.cvtColor(trainingImage, cv2.COLOR_BGR2GRAY)
 
-    kpsToTest, descToTest = detector.detectAndCompute(imageToTest, None)
+    trainingKPs, trainingDescs = detector.detectAndCompute(trainingImage, None)
 
-    matches = matcher.knnMatch(descToTest,  k=2)
+    if trainingDescs is None:
+        trainingDescs = []
 
-    good = []
-    for m,n in matches:
-        if m.distance < 0.75 * n.distance:
-            good.append([m])
+    matcher.add([trainingDescs])
 
-    good.sort(key=lambda x: x[0].distance)
-    # print(matches)
-    # print(good)
-    img3 = cv2.drawMatchesKnn(targetImage, kpsTarget,
-                              imageToTest, kpsToTest, good, None, flags=2)
-    plt.imshow(img3), plt.show()
-    # while True:
-    #     ret, frame = self.cap.read()
-    #     if not ret:
-    #         break
-    #     frame = frame.copy()
+    targetImage = cv2.imread('data/s2/20181205-095524-1.jpg')
+    targetCopy = cv2.cvtColor(targetImage, cv2.COLOR_BGR2GRAY)
 
-    #     keypoints, descrs = self.detector.detectAndCompute(frame, None)
-    #     if descrs is None:  # detectAndCompute returns descs=None if not keypoints found
-    #         descrs = []
+    targetKPs, targetDescs = detector.detectAndCompute(trainingImage, None)
 
-    #     if len(keypoints) < MIN_MATCH_COUNT:
-    #         tracked = []
+    if targetDescs is None:
+        targetDescs = []
+
+    matches = matcher.knnMatch(targetDescs, k=2)
+    matches = [m[0] for m in matches if len(
+        m) == 2 and m[0].distance < m[1].distance * 0.75]
+
+    print(matches)
+    
+    # if len(matches) < MIN_MATCH_COUNT:
+    #     return []
