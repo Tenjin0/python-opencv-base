@@ -18,7 +18,7 @@ index_params2 = dict(algorithm=FLANN_INDEX_KDTREE, trees=5)
 # queryImage = cv2.imread('images/bathory_album.jpg', 0)
 # trainingImage = cv2.imread('images/bathory_vinyls.jpg', 0)
 queryImage = cv2.imread('images/elephant.jpg', 0)
-trainingImage = cv2.imread('data/s2/20181112-102950-3.jpg', 0)
+trainingImage = cv2.imread('data/s3/20181210-100736-2.jpg', 0)
 
 orb = cv2.ORB_create()
 

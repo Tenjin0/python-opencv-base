@@ -31,10 +31,14 @@ if __name__ == "__main__":
     # cap = cv2.VideoCapture(video_src)
 
     trainingImage = cv2.imread('images/elephant.png', 0)
-    queryImage = cv2.imread('data/s2/20181112-102950-3.jpg', 0)
+    queryImage = cv2.imread('data/s3/20181210-100711-4.jpg', 0)
     # bug : need to pass empty dict (#1329)
+
+    if queryImage is None:
+        raise ValueError('query image not found')
+
     matcher = cv2.FlannBasedMatcher(flann_params, {})
-    Querys = []
+    querys = []
     frame_points = []
 
     vis = queryImage.copy()

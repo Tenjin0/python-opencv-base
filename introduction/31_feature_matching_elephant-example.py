@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
     matcher.add([trainingDescs])
 
-    targetImage = cv2.imread('data/s2/20181205-095524-1.jpg')
+    targetImage = cv2.imread('data/s3/20181210-100711-4.jpg')
     targetCopy = cv2.cvtColor(targetImage, cv2.COLOR_BGR2GRAY)
 
     targetKPs, targetDescs = detector.detectAndCompute(trainingImage, None)
@@ -57,7 +57,5 @@ if __name__ == "__main__":
     matches = [m[0] for m in matches if len(
         m) == 2 and m[0].distance < m[1].distance * 0.75]
 
-    print(matches)
-    
     # if len(matches) < MIN_MATCH_COUNT:
     #     return []

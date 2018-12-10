@@ -155,8 +155,9 @@ class App:
             #         break
             #     self.frame = frame.copy()
 
-        frame = cv2.imread('data/s2/20181205-095524-1.jpg')
+        frame = cv2.imread('data/s3/20181210-100711-4.jpg')
         self.frame = frame.copy()
+
         vis = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         # if playing:
