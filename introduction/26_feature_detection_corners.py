@@ -23,7 +23,7 @@ if __name__ == "__main__":
     gray = np.float32(gray)
 
     dst = cv2.cornerHarris(gray, 2, 23, 0.04)
-    print dst
+
     img[dst > 0.02 * dst.max()] = [0, 0, 255]
 
     while(True):

@@ -82,7 +82,7 @@ def generatePathFolder(id=None, directory=DIRECTORY):
 
 
 def generate(id=None, count=10, fileFormat="pgm"):
-    print(id, count, fileFormat)
+
     storeFolder = generatePathFolder(id=id)
     face_detected = False
     camera = cv2.VideoCapture(0)

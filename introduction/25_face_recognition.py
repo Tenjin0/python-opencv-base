@@ -66,7 +66,6 @@ if __name__ == "__main__":
                 cv2.putText(img, "{0:.2f}%".format(params3[1] / 100), (x + w - 50, y - 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.60, (0, 0, 255), 2)
 
-
             except:
                 cv2.putText(img, "unknown", (x, y - 15),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.60, 255, 2)
