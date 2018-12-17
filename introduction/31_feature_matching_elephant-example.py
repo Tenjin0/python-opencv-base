@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
     matcher = cv2.FlannBasedMatcher(flann_params, {})
 
-    trainingImage = cv2.imread('images/elephant.png')
+    trainingImage = cv2.imread('images/lipton.png')
     trainingCopy = cv2.cvtColor(trainingImage, cv2.COLOR_BGR2GRAY)
 
     trainingKPs, trainingDescs = detector.detectAndCompute(trainingImage, None)
@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
     matcher.add([trainingDescs])
 
-    targetImage = cv2.imread('data/s3/20181210-100736-2.jpg')
+    targetImage = cv2.imread('data/s3/20181211-101900-1.jpg')
     targetCopy = cv2.cvtColor(targetImage, cv2.COLOR_BGR2GRAY)
 
     targetKPs, targetDescs = detector.detectAndCompute(targetImage, None)
@@ -77,8 +77,7 @@ if __name__ == "__main__":
 
     H, status = cv2.findHomography(p0, p1, cv2.RANSAC, 3.0)
     status = status.ravel() != 0
-    # if status.sum() < MIN_MATCH_COUNT:
-    #             continue:
+
     p0, p1 = p0[status], p1[status]
 
     for (x, y) in np.int32(p0):
@@ -93,11 +92,12 @@ if __name__ == "__main__":
     x1 = width
     y1 = heigth
 
-    quad = np.float32([[x0, y0], [x1, y0], [x1, y1], [x0, y1]])
-
-    quad = cv2.perspectiveTransform(
-        quad.reshape(1, -1, 2), H)
-
+    quad = np.float32([[x0, y0], [x0, y1], [x1, y1], [x1, y0]])
+    print(quad)
+    np.reshape
+    quad = quad.reshape(-1, 1, 2)
+    print(quad)
+    quad = cv2.perspectiveTransform(quad, H)
     cv2.polylines(targetImage, [np.int32(quad)],
                   True, (255, 255, 255), 2)
     for (x, y) in np.int32(p1):

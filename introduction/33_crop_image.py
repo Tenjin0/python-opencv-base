@@ -74,7 +74,7 @@ class App:
         print(rect)
         x0, y0, x1, y1 = rect
         self.crop_image = self.frame[y0:y1, x0:x1]
-        cv2.imwrite("./data/lipton" + "/%s" % filename, frame)
+        cv2.imwrite("./images/lipton.png", self.crop_image)
         # self.tracker.add_target(self.frame, rect)
 
     def run(self):
