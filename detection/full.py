@@ -52,6 +52,7 @@ targetImage = cv2.imread('images/elephant.png', 0)
 
 class PlaneTracker:
     def __init__(self):
+
         self.detector = cv2.ORB_create(nfeatures=1000)
         # bug : need to pass empty dict (#1329)
         self.matcher = cv2.FlannBasedMatcher(flann_params, {})
@@ -59,6 +60,7 @@ class PlaneTracker:
         self.frame_points = []
 
     def add_target(self, image, rect, data=None):
+
         '''Add a new tracking target.'''
         x0, y0, x1, y1 = rect
         raw_points, raw_descrs = self.detect_features(image)

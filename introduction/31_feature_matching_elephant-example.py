@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
     matcher = cv2.FlannBasedMatcher(flann_params, {})
 
-    trainingImage = cv2.imread('images/lipton.png')
+    trainingImage = cv2.imread('images/lipton5.png')
     trainingCopy = cv2.cvtColor(trainingImage, cv2.COLOR_BGR2GRAY)
 
     trainingKPs, trainingDescs = detector.detectAndCompute(trainingImage, None)
@@ -93,10 +93,8 @@ if __name__ == "__main__":
     y1 = heigth
 
     quad = np.float32([[x0, y0], [x0, y1], [x1, y1], [x1, y0]])
-    print(quad)
     np.reshape
     quad = quad.reshape(-1, 1, 2)
-    print(quad)
     quad = cv2.perspectiveTransform(quad, H)
     cv2.polylines(targetImage, [np.int32(quad)],
                   True, (255, 255, 255), 2)
