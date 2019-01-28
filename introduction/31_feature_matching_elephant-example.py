@@ -38,7 +38,7 @@ if __name__ == "__main__":
     trainingImage = cv2.imread('images/elephant.png')
     trainingCopy = cv2.cvtColor(trainingImage, cv2.COLOR_BGR2GRAY)
 
-    trainingKPs, trainingDescs = detector.detectAndCompute(trainingImage, None)
+    trainingKPs, trainingDescs = detector.detectAndCompute(trainingCopy, None)
 
     if trainingDescs is None:
         trainingDescs = []
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     targetImage = cv2.imread('data/s3/20181210-100718-3.jpg')
     targetCopy = cv2.cvtColor(targetImage, cv2.COLOR_BGR2GRAY)
 
-    targetKPs, targetDescs = detector.detectAndCompute(targetImage, None)
+    targetKPs, targetDescs = detector.detectAndCompute(targetCopy, None)
 
     if targetDescs is None:
         targetDescs = []

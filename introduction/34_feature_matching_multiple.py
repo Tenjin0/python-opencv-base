@@ -23,32 +23,37 @@ def tuple_float_to_int(a_tuple):
     return tuple(int(i) for i in a_tuple)
 
 
-if __name__ == "__main__":
+def addImageToMatcher(trainingImage, matcher):
 
-    try:
-        video_src = sys.argv[1]
-    except:
-        video_src = 0
-    cap = cv2.VideoCapture(video_src)
-
-    detector = cv2.ORB_create(nfeatures=1000)
-
-    matcher = cv2.FlannBasedMatcher(flann_params, {})
-
-    trainingImage = cv2.imread('images/elephant.png')
+    trainingImage = cv2.imread(trainingImage)
     trainingCopy = cv2.cvtColor(trainingImage, cv2.COLOR_BGR2GRAY)
-
-    trainingKPs, trainingDescs = detector.detectAndCompute(trainingImage, None)
+    trainingKPs, trainingDescs = detector.detectAndCompute(trainingCopy, None)
 
     if trainingDescs is None:
         trainingDescs = []
 
     matcher.add([trainingDescs])
 
+
+if __name__ == "__main__":
+
+    # try:
+    #     video_src = sys.argv[1]
+    # except:
+    #     video_src = 0
+    # cap = cv2.VideoCapture(video_src)
+
+    detector = cv2.ORB_create(nfeatures=1000)
+
+    matcher = cv2.FlannBasedMatcher(flann_params, {})
+
+    addImageToMatcher('images/elephant.png', matcher)
+    addImageToMatcher('images/lipton.png', matcher)
+
     targetImage = cv2.imread('data/s3/20181210-100718-3.jpg')
     targetCopy = cv2.cvtColor(targetImage, cv2.COLOR_BGR2GRAY)
 
-    targetKPs, targetDescs = detector.detectAndCompute(targetImage, None)
+    targetKPs, targetDescs = detector.detectAndCompute(targetCopy, None)
 
     if targetDescs is None:
         targetDescs = []
@@ -57,15 +62,15 @@ if __name__ == "__main__":
 
     matches = [m[0] for m in matches if len(
         m) == 2 and m[0].distance < m[1].distance * 0.75]
-
     if len(matches) < MIN_MATCH_COUNT:
         matches = []
-
     p0 = []
     p1 = []
     for m in matches:
-        p0.append(trainingKPs[m.trainIdx].pt)
-        p1.append(targetKPs[m.queryIdx].pt)
+        print(m.imgIdx, m.trainIdx, m.queryIdx)
+        # p0.append([m.trainIdx].pt)
+        # p1.append(targetKPs[m.queryIdx].pt)
+    exit()
 
     p0, p1 = np.float32((p0, p1))
 
@@ -93,7 +98,6 @@ if __name__ == "__main__":
     y1 = heigth
 
     quad = np.float32([[x0, y0], [x0, y1], [x1, y1], [x1, y0]])
-    np.reshape
     quad = quad.reshape(-1, 1, 2)
     quad = cv2.perspectiveTransform(quad, H)
     cv2.polylines(targetImage, [np.int32(quad)],
