@@ -49,10 +49,11 @@ if __name__ == "__main__":
 
     matcher = cv2.FlannBasedMatcher(flann_params, {})
     KPs = []
-    addImageToMatcher('images/elephant_old.png', matcher, KPs)
+    addImageToMatcher('images/elephant.png', matcher, KPs)
     addImageToMatcher('images/lipton.jpg', matcher, KPs)
 
     targetImage = cv2.imread('data/s3/20181210-100718-3.jpg')
+    targetImage = cv2.imread('data/s3/20181210-100711-4.jpg')
     targetCopy = cv2.cvtColor(targetImage, cv2.COLOR_BGR2GRAY)
 
     targetKPs, targetDescs = detector.detectAndCompute(targetCopy, None)
@@ -85,7 +86,7 @@ if __name__ == "__main__":
     for (x, y) in np.int32(p1):
         cv2.circle(targetImage, (x, y), 10, (0, 255, 255))
 
-    H, status = cv2.findHomography(p0, p1, cv2.RANSAC, 3.0)
+    H, status = cv2.findHomography(p0, p1, cv2.RANSAC, 100)
     status = status.ravel() != 0
 
     p0, p1 = p0[status], p1[status]

@@ -35,6 +35,7 @@ if __name__ == "__main__":
 
     matcher = cv2.FlannBasedMatcher(flann_params, {})
 
+    trainingImage = cv2.imread('images/elephant_old.png')
     trainingImage = cv2.imread('images/elephant.png')
     trainingCopy = cv2.cvtColor(trainingImage, cv2.COLOR_BGR2GRAY)
 
@@ -45,7 +46,8 @@ if __name__ == "__main__":
 
     matcher.add([trainingDescs])
 
-    targetImage = cv2.imread('data/s3/20181210-100718-3.jpg')
+    # targetImage = cv2.imread('data/s3/20181210-100718-3.jpg')
+    targetImage = cv2.imread('data/s3/20181210-100711-4.jpg')
     targetCopy = cv2.cvtColor(targetImage, cv2.COLOR_BGR2GRAY)
 
     targetKPs, targetDescs = detector.detectAndCompute(targetCopy, None)
@@ -75,7 +77,7 @@ if __name__ == "__main__":
     for (x, y) in np.int32(p1):
         cv2.circle(targetImage, (x, y), 10, (0, 255, 255))
 
-    H, status = cv2.findHomography(p0, p1, cv2.RANSAC, 3.0)
+    H, status = cv2.findHomography(p0, p1, cv2.LMEDS, 5.0)
     status = status.ravel() != 0
 
     p0, p1 = p0[status], p1[status]
@@ -85,19 +87,16 @@ if __name__ == "__main__":
     for (x, y) in np.int32(p1):
         cv2.circle(targetImage, (x, y), 8, (255, 255, 0))
 
-    width, heigth = trainingCopy.shape
-
-    x0 = 0
-    y0 = 0
-    x1 = width
-    y1 = heigth
-
-    quad = np.float32([[x0, y0], [x0, y1], [x1, y1], [x1, y0]])
-    np.reshape
-    quad = quad.reshape(-1, 1, 2)
-    quad = cv2.perspectiveTransform(quad, H)
-    cv2.polylines(targetImage, [np.int32(quad)],
-                  True, (255, 255, 255), 2)
+    h = trainingCopy.shape[0]
+    w = trainingCopy.shape[1]
+    trainBorder = np.float32(
+        [[[0, 0], [0, h - 1], [w - 1, h - 1], [w - 1, 0]]])
+    queryBorder = cv2.perspectiveTransform(trainBorder, H)
+    cv2.polylines(targetImage, [np.int32(queryBorder)], True, (255, 255, 255), 2)
+    # quad = quad.reshape(-1, 1, 2)
+    # quad = cv2.perspectiveTransform(quad, H)
+    # cv2.polylines(targetImage, [np.int32(quad)],
+    #               True, (255, 255, 255), 2)
     for (x, y) in np.int32(p1):
         cv2.circle(targetImage, (x, y), 2, (255, 255, 255), 2)
 
