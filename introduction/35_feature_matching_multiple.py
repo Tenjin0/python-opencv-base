@@ -66,32 +66,31 @@ if __name__ == "__main__":
     if len(matches) < MIN_MATCH_COUNT:
         matches = []
 
-    p0 = []
-    p1 = []
+    p0 = [[] for _ in xrange(len(app.targets))]
+    pts = [[] for _ in xrange(len(app.targets))]
 
     for m in matches:
-        print(m.imgIdx, m.trainIdx, m.queryIdx)
-        if (m.imgIdx == 0):
-            p0.append(KPs[m.imgIdx][m.trainIdx].pt)
-            p1.append(targetKPs[m.queryIdx].pt)
+        # print(m.imgIdx, m.trainIdx, m.queryIdx, app.targets[m.imgIdx].keypoints)
+        pTraining[m.imgIdx].append(app.targets[m.imgIdx].keypoints[m.trainIdx].pt)
+        ptsTarget[m.imgIdx].append(targetKPs[m.queryIdx].pt)
 
-    p0, p1 = np.float32((p0, p1))
+    # p0, p1 = np.float32((p0, p1))
 
     # for (x, y) in np.int32(p0):
     #     cv2.circle(trainingImage, (x, y), 10, (0, 0, 0))
 
-    for (x, y) in np.int32(p1):
-        cv2.circle(targetImage, (x, y), 10, (0, 255, 255))
+    # for (x, y) in np.int32(p1):
+    #     cv2.circle(targetImage, (x, y), 10, (0, 255, 255))
 
-    H, status = cv2.findHomography(p0, p1, cv2.RANSAC, 100)
-    status = status.ravel() != 0
+    # H, status = cv2.findHomography(p0, p1, cv2.RANSAC, 100)
+    # status = status.ravel() != 0
 
-    p0, p1 = p0[status], p1[status]
+    # p0, p1 = p0[status], p1[status]
 
     # for (x, y) in np.int32(p0):
     #     cv2.circle(trainingImage, (x, y), 8, (255, 255, 0))
-    for (x, y) in np.int32(p1):
-        cv2.circle(targetImage, (x, y), 8, (255, 255, 0))
+    # for (x, y) in np.int32(p1):
+    #     cv2.circle(targetImage, (x, y), 8, (255, 255, 0))
 
     # width, heigth = trainingCopy.shape
 
@@ -105,10 +104,10 @@ if __name__ == "__main__":
     # quad = cv2.perspectiveTransform(quad, H)
     # cv2.polylines(targetImage, [np.int32(quad)],
     #               True, (255, 255, 255), 2)
-    for (x, y) in np.int32(p1):
-        cv2.circle(targetImage, (x, y), 2, (255, 255, 255), 2)
+    # for (x, y) in np.int32(p1):
+    #     cv2.circle(targetImage, (x, y), 2, (255, 255, 255), 2)
 
     # cv2.imshow('train', trainingImage)
-    cv2.imshow('queryImage', targetImage)
-    cv2.waitKey()
-    cv2.destroyAllWindows()
+    # cv2.imshow('queryImage', targetImage)
+    # cv2.waitKey()
+    # cv2.destroyAllWindows()

@@ -11,7 +11,7 @@ if PY3:
     xrange = range
 
 
-Target = namedtuple('Target', 'name, image, keypoints, descrs')
+Feature = namedtuple('Feature', 'name, image, keypoints, descrs')
 
 
 class Detect_feature():
@@ -61,7 +61,7 @@ class Detect_feature():
         targetCopy = cv2.cvtColor(self.targetImage, cv2.COLOR_BGR2GRAY)
         keypoints, descrs = self.detect_features(targetCopy)
 
-        matches = app.matcher.knnMatch(targetDescs, k=2)
+        matches = self.matcher.knnMatch(targetDescs, k=2)
 
         matches = [m[0] for m in matches if len(
             m) == 2 and m[0].distance < m[1].distance * 0.75]
@@ -69,5 +69,10 @@ class Detect_feature():
         if len(matches) < MIN_MATCH_COUNT:
             matches = []
 
-        p0 = []
-        p1 = [] 
+        pts = []
+
+        for m in matches:
+            print(m.imgIdx, m.trainIdx, m.queryIdx)
+            if (m.imgIdx == 0):
+                p1.append(targetKPs[m.queryIdx].pt)
+
