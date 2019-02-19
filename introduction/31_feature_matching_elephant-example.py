@@ -35,9 +35,11 @@ if __name__ == "__main__":
 
     matcher = cv2.FlannBasedMatcher(flann_params, {})
 
-    trainingImage = cv2.imread('images/elephant_old.png')
+    # trainingImage = cv2.imread('images/elephant_old.png')
     trainingImage = cv2.imread('images/elephant.png')
     trainingCopy = cv2.cvtColor(trainingImage, cv2.COLOR_BGR2GRAY)
+
+    print(trainingImage.shape)
 
     trainingKPs, trainingDescs = detector.detectAndCompute(trainingCopy, None)
 
@@ -70,6 +72,7 @@ if __name__ == "__main__":
         p1.append(targetKPs[m.queryIdx].pt)
 
     p0, p1 = np.float32((p0, p1))
+    print(len(p1))
 
     for (x, y) in np.int32(p0):
         cv2.circle(trainingImage, (x, y), 10, (0, 0, 0))
@@ -81,16 +84,19 @@ if __name__ == "__main__":
     status = status.ravel() != 0
 
     p0, p1 = p0[status], p1[status]
+    print(len(p1))
 
-    for (x, y) in np.int32(p0):
-        cv2.circle(trainingImage, (x, y), 8, (255, 255, 0))
-    for (x, y) in np.int32(p1):
-        cv2.circle(targetImage, (x, y), 8, (255, 255, 0))
+    # for (x, y) in np.int32(p0):
+    #     cv2.circle(trainingImage, (x, y), 8, (255, 255, 0))
+    # for (x, y) in np.int32(p1):
+    #     cv2.circle(targetImage, (x, y), 8, (255, 255, 0))
 
     h = trainingCopy.shape[0]
     w = trainingCopy.shape[1]
     trainBorder = np.float32(
         [[[0, 0], [0, h - 1], [w - 1, h - 1], [w - 1, 0]]])
+    print(trainBorder)
+
     queryBorder = cv2.perspectiveTransform(trainBorder, H)
     cv2.polylines(targetImage, [np.int32(queryBorder)], True, (255, 255, 255), 2)
     # quad = quad.reshape(-1, 1, 2)
@@ -100,7 +106,7 @@ if __name__ == "__main__":
     for (x, y) in np.int32(p1):
         cv2.circle(targetImage, (x, y), 2, (255, 255, 255), 2)
 
-    cv2.imshow('train', trainingImage)
+    # cv2.imshow('train', trainingImage)
     cv2.imshow('queryImage', targetImage)
     cv2.waitKey()
     cv2.destroyAllWindows()

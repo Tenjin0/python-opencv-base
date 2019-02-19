@@ -48,7 +48,7 @@ if __name__ == "__main__":
     app = Detect_feature()
 
     app.add_feature_from_path("elephant", "images/elephant.png")
-    app.add_feature_from_path("lipton", "images/lipton.jpg")
+    # app.add_feature_from_path("lipton", "images/lipton.jpg")
 
     targetImage = cv2.imread('data/s3/20181210-100711-4.jpg')
     targetCopy = cv2.cvtColor(targetImage, cv2.COLOR_BGR2GRAY)
@@ -72,18 +72,19 @@ if __name__ == "__main__":
     for m in matches:
         ptsTraining[m.imgIdx].append(app.targets[m.imgIdx].keypoints[m.trainIdx].pt)
         ptsTarget[m.imgIdx].append(targetKPs[m.queryIdx].pt)
-    
+
     p0, p1 = np.float32((ptsTraining[0], ptsTarget[0]))
+    print(len(p1))
 
     for (x, y) in np.int32(ptsTarget[0]):
         cv2.circle(targetImage, (x, y), 10, (0, 255, 255))
 
     # for (x, y) in np.int32(p1):
-    H, status = cv2.findHomography(p0, p1, cv2.RANSAC, 100)
+    H, status = cv2.findHomography(p0, p1, cv2.LMEDS, 5.0)
     status = status.ravel() != 0
 
     p0, p1 = p0[status], p1[status]
-    print(p1)
+    print(len(p1))
     for (x, y) in np.int32(p1):
         cv2.circle(targetImage, (x, y), 2, (255, 255, 255), 2)
     # for (x, y) in np.int32(ptsTraining[0]):
@@ -91,18 +92,15 @@ if __name__ == "__main__":
     # for (x, y) in np.int32(p1):
     #     cv2.circle(targetImage, (x, y), 8, (255, 255, 0))
 
-    width, heigth, grade = app
-    .targets[0].image.shape
-    print(width, heigth, grade)
+    width, heigth, grade = app.targets[0].image.shape
     x0 = 0
     y0 = 0
-    x1 = width
-    y1 = heigth
+    x1 = heigth
+    y1 = width
 
     quad = np.float32([[x0, y0], [x0, y1], [x1, y1], [x1, y0]])
     quad = quad.reshape(-1, 1, 2)
     quad = cv2.perspectiveTransform(quad, H)
-
     cv2.polylines(targetImage, [np.int32(quad)],
                   True, (255, 255, 255), 2)
 

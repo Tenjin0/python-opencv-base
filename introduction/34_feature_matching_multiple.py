@@ -35,6 +35,7 @@ def addImageToMatcher(trainingImage, matcher, KPs):
         trainingDescs = []
 
     matcher.add([trainingDescs])
+    return trainingImage
 
 
 if __name__ == "__main__":
@@ -49,8 +50,8 @@ if __name__ == "__main__":
 
     matcher = cv2.FlannBasedMatcher(flann_params, {})
     KPs = []
-    addImageToMatcher('images/elephant.png', matcher, KPs)
-    addImageToMatcher('images/lipton.jpg', matcher, KPs)
+    trainingImage = addImageToMatcher('images/elephant.png', matcher, KPs)
+    # addImageToMatcher('images/lipton.jpg', matcher, KPs)
 
     # targetImage = cv2.imread('data/s3/20181210-100718-3.jpg')
     targetImage = cv2.imread('data/s3/20181210-100711-4.jpg')
@@ -73,30 +74,33 @@ if __name__ == "__main__":
     p1 = []
 
     for m in matches:
-        print(m.imgIdx, m.trainIdx, m.queryIdx)
+        # print(m.imgIdx, m.trainIdx, m.queryIdx)
         if (m.imgIdx == 0):
             p0.append(KPs[m.imgIdx][m.trainIdx].pt)
             p1.append(targetKPs[m.queryIdx].pt)
 
     p0, p1 = np.float32((p0, p1))
 
+    print(len(p1))
     # for (x, y) in np.int32(p0):
     #     cv2.circle(trainingImage, (x, y), 10, (0, 0, 0))
 
     for (x, y) in np.int32(p1):
         cv2.circle(targetImage, (x, y), 10, (0, 255, 255))
 
-    H, status = cv2.findHomography(p0, p1, cv2.RANSAC, 100)
+    # H, status = cv2.findHomography(p0, p1, cv2.RANSAC, 100) not really good
+    H, status = cv2.findHomography(p0, p1, cv2.LMEDS, 5.0)
     status = status.ravel() != 0
 
     p0, p1 = p0[status], p1[status]
+    print(len(p1))
 
     # for (x, y) in np.int32(p0):
     #     cv2.circle(trainingImage, (x, y), 8, (255, 255, 0))
-    for (x, y) in np.int32(p1):
-        cv2.circle(targetImage, (x, y), 8, (255, 255, 0))
+    # for (x, y) in np.int32(p1):
+    #     cv2.circle(targetImage, (x, y), 8, (255, 255, 0))
 
-    width, heigth = targetCopy.shape
+    width, heigth, grade = trainingImage.shape
 
     x0 = 0
     y0 = 0
@@ -104,6 +108,7 @@ if __name__ == "__main__":
     y1 = heigth
 
     quad = np.float32([[x0, y0], [x0, y1], [x1, y1], [x1, y0]])
+    print(quad)
     quad = quad.reshape(-1, 1, 2)
     quad = cv2.perspectiveTransform(quad, H)
     cv2.polylines(targetImage, [np.int32(quad)],
