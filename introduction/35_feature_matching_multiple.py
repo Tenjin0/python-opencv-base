@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import math
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 needed_dir = os.path.abspath(os.path.join(this_dir, '../.'))
@@ -70,44 +71,59 @@ if __name__ == "__main__":
     ptsTarget = [[] for _ in xrange(len(app.targets))]
 
     for m in matches:
-        ptsTraining[m.imgIdx].append(app.targets[m.imgIdx].keypoints[m.trainIdx].pt)
+        ptsTraining[m.imgIdx].append(
+            app.targets[m.imgIdx].keypoints[m.trainIdx].pt)
         ptsTarget[m.imgIdx].append(targetKPs[m.queryIdx].pt)
 
     p0, p1 = np.float32((ptsTraining[0], ptsTarget[0]))
     print(len(p1))
 
-    for (x, y) in np.int32(ptsTarget[0]):
-        cv2.circle(targetImage, (x, y), 10, (0, 255, 255))
+    # for (x, y) in np.int32(ptsTarget[0]):
+    #     cv2.circle(targetImage, (x, y), 10, (0, 255, 255))
 
     # for (x, y) in np.int32(p1):
-    H, status = cv2.findHomography(p0, p1, cv2.LMEDS, 5.0)
+    M, status = cv2.findHomography(p0, p1, cv2.LMEDS, 5.0)
     status = status.ravel() != 0
 
     p0, p1 = p0[status], p1[status]
     print(len(p1))
-    for (x, y) in np.int32(p1):
-        cv2.circle(targetImage, (x, y), 2, (255, 255, 255), 2)
+    # for (x, y) in np.int32(p1):
+    #     cv2.circle(targetImage, (x, y), 2, (255, 255, 255), 2)
     # for (x, y) in np.int32(ptsTraining[0]):
     #     cv2.circle(app.targets[0].image, (x, y), 8, (255, 255, 0))
     # for (x, y) in np.int32(p1):
     #     cv2.circle(targetImage, (x, y), 8, (255, 255, 0))
 
-    width, heigth, grade = app.targets[0].image.shape
-    x0 = 0
-    y0 = 0
-    x1 = heigth
-    y1 = width
+    h = app.targets[0].image.shape[0]
+    w = app.targets[0].image.shape[1]
 
-    quad = np.float32([[x0, y0], [x0, y1], [x1, y1], [x1, y0]])
-    quad = quad.reshape(-1, 1, 2)
-    quad = cv2.perspectiveTransform(quad, H)
+    quad = np.float32(
+        [[[0, 0], [0, h - 1], [w - 1, h - 1], [w - 1, 0]]])
+
+    ss = M[0, 1]
+    sc = M[0, 0]
+    scaleRecovered = math.sqrt(ss * ss + sc * sc)
+    thetaRecovered = math.atan2(ss, sc) * 180 / math.pi
+    print("MAP: Calculated scale difference: %.2f, "
+          "Calculated rotation difference: %.2f" %
+          (scaleRecovered, thetaRecovered))
+
+    # deskew image
+    im_out = cv2.warpPerspective(targetImage,
+                                 np.linalg.inv(M),
+                                 (app.targets[0].image.shape[1],
+                                  app.targets[0].image.shape[0]))
+
+    quad = cv2.perspectiveTransform(quad, M)
+
     cv2.polylines(targetImage, [np.int32(quad)],
                   True, (255, 255, 255), 2)
 
-    for (x, y) in np.int32(p1):
-        cv2.circle(targetImage, (x, y), 2, (255, 255, 255), 2)
+    # for (x, y) in np.int32(p1):
+    #     cv2.circle(targetImage, (x, y), 2, (255, 255, 255), 2)
 
     # cv2.imshow('trainingImage', app.targets[0].image)
+    cv2.imshow('im_out', im_out)
     cv2.imshow('queryImage', targetImage)
     cv2.waitKey()
     cv2.destroyAllWindows()
