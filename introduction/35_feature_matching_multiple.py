@@ -100,34 +100,22 @@ if __name__ == "__main__":
     quad = np.float32(
         [[[0, 0], [0, h - 1], [w - 1, h - 1], [w - 1, 0]]])
 
-    ss = M[0, 1]
-    print(ss)
-    sc = M[0, 0]
-    print(sc)
-    # estimateRigidTransform
-    scaleRecovered = math.sqrt(ss * ss + sc * sc)
-    thetaRecovered = math.atan2(ss, sc) * 180 / math.pi
-    quad = scaleRecovered * quad
-    print("MAP: Calculated scale difference: %.2f, "
-          "Calculated rotation difference: %.2f" %
-          (scaleRecovered, thetaRecovered))
-
+    (translationx, translationy), rotation, (scalex, scaley), shear = app.getComponents(M)
+    print((translationx, translationy), rotation, (scalex, scaley), shear)
     # deskew image
-    # im_out = cv2.warpPerspective(targetImage,
-    #                              np.linalg.inv(M),
-    #                              (app.targets[0].image.shape[1],
-    #                               app.targets[0].image.shape[0]))
+    im_out = cv2.warpPerspective(targetImage,
+                                 np.linalg.inv(M),
+                                 (app.targets[0].image.shape[1],
+                                  app.targets[0].image.shape[0]))
 
-    # quad = cv2.perspectiveTransform(quad, M)
-
+    quad = cv2.perspectiveTransform(quad, M)
     cv2.polylines(targetImage, [np.int32(quad)],
                   True, (255, 255, 255), 2)
-
+    # https://docs.opencv.org/3.4/da/d6e/tutorial_py_geometric_transformations.html
     # for (x, y) in np.int32(p1):
     #     cv2.circle(targetImage, (x, y), 2, (255, 255, 255), 2)
 
-    # cv2.imshow('trainingImage', app.targets[0].image)
-    # cv2.imshow('im_out', im_out)
+    cv2.imshow('im_out', im_out)
     cv2.imshow('queryImage', targetImage)
     cv2.waitKey()
     cv2.destroyAllWindows()

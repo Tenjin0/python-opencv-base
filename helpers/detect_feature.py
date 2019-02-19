@@ -1,6 +1,7 @@
 import sys
 import cv2
-import numpy as np
+import math
+# import numpy as np
 
 # built-in modules
 from collections import namedtuple
@@ -61,12 +62,12 @@ class Detect_feature():
         targetCopy = cv2.cvtColor(self.targetImage, cv2.COLOR_BGR2GRAY)
         keypoints, descrs = self.detect_features(targetCopy)
 
-        matches = self.matcher.knnMatch(targetDescs, k=2)
+        matches = self.matcher.knnMatch(descrs, k=2)
 
         matches = [m[0] for m in matches if len(
             m) == 2 and m[0].distance < m[1].distance * 0.75]
 
-        if len(matches) < MIN_MATCH_COUNT:
+        if len(matches) < self.MIN_MATCH_COUNT:
             matches = []
 
         pts = []
@@ -74,5 +75,32 @@ class Detect_feature():
         for m in matches:
             print(m.imgIdx, m.trainIdx, m.queryIdx)
             if (m.imgIdx == 0):
-                p1.append(targetKPs[m.queryIdx].pt)
+                pts.append(keypoints[m.queryIdx].pt)
+
+    '''((translationx, translationy), rotation, (scalex, scaley), shear)'''
+    def getComponents(self, normalised_homography):
+        a = normalised_homography[0,0]
+        b = normalised_homography[0,1]
+        c = normalised_homography[0,2]
+        d = normalised_homography[1,0]
+        e = normalised_homography[1,1]
+        f = normalised_homography[1,2]
+
+        p = math.sqrt(a*a + b*b)
+        r = (a*e - b*d)/(p)
+        q = (a*d+b*e)/(a*e - b*d)
+
+        translation = (c,f)
+        scale = (p,r)
+        shear = q
+        theta = math.atan2(b,a)
+
+        # ss = M[0, 1]
+        # sc = M[0, 0]
+        # scaleRecovered = math.sqrt(ss * ss + sc * sc)
+        # thetaRecovered = math.atan2(ss, sc) * 180 / math.pi
+        # print("MAP: Calculated scale difference: %.2f, "
+        #     "Calculated rotation difference: %.2f" %
+        #     (scaleRecovered, thetaRecovered))
+        return (translation, theta, scale, shear)
 
