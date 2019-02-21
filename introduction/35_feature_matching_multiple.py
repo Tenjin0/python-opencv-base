@@ -34,6 +34,14 @@ if __name__ == "__main__":
     # if targetDescs is None:
     #     targetDescs = []
 
-    app.track('data/s3/20181210-100711-4.jpg')
+    while cap.isOpened():
+        _, frame = cameraCapture.read()
+        app.track('data/s3/20181210-100711-4.jpg')
 
-    app.show_image()
+        app.show_image()
+
+        if cv2.waitKey(1000 / 12) & 0xff == ord("q"):
+            break  # esc to quit
+
+    cap.release()
+    cv2.destroyAllWindows()
