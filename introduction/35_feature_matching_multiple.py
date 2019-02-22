@@ -11,7 +11,6 @@ sys.path.insert(0, needed_dir)
 
 from helpers.detect_feature import Detect_feature
 
-
 if __name__ == "__main__":
 
     try:
@@ -35,12 +34,18 @@ if __name__ == "__main__":
     #     targetDescs = []
 
     while cap.isOpened():
-        _, frame = cameraCapture.read()
-        app.track('data/s3/20181210-100711-4.jpg')
+        _, frame = cap.read()
+        target, detected = app.track(frame, draw_points=True)
+        if (detected):
+            app.warpPerspective(target)
 
-        app.show_image()
+        img_out = app.draw_on_target_image(target, draw_points=True)
+        print(img_out)
+        app.show_image(target['image'], img_out)
+        wait = 0 if detected else 1
+        key = cv2.waitKey(wait)
 
-        if cv2.waitKey(1000 / 12) & 0xff == ord("q"):
+        if key & 0xff == ord("q"):
             break  # esc to quit
 
     cap.release()

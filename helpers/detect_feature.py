@@ -33,7 +33,6 @@ class Detect_feature():
         self.detector = cv2.ORB_create(nfeatures=1000)
         self.matcher = cv2.FlannBasedMatcher(self.flann_params, {})
         self.features = []
-        self.targetImage = None
 
     def add_feature_from_path(self, name, filepath):
 
@@ -60,24 +59,37 @@ class Detect_feature():
             descrs = []
         return keypoints, descrs
 
-    def track(self, target_filepath):
+    def track(self, target_filepath, draw_points=False):
 
-        self.targetImage = cv2.imread(target_filepath)
-        keypoints, descrs = self.detect_feature(self.targetImage)
+        targetImage = None
+        if type(target_filepath) is "string":
+            targetImage = cv2.imread(target_filepath)
+        else:
+            targetImage = target_filepath
+
+        target = {
+            "image": targetImage
+        }
+
+        keypoints, descrs = self.detect_feature(target["image"])
 
         matches = self.matcher.knnMatch(descrs, k=2)
 
         matches = [m[0] for m in matches if len(
-            m) == 2 and m[0].distance < m[1].distance * 0.75]
+            m) == 2 and m[0].distance < m[1].distance * 0.7]
 
         if len(matches) < self.MIN_MATCH_COUNT:
             matches = []
+        else:
+            print("matches", len(matches))
+            pts = self.extract_matches_points(matches, keypoints)
 
-        pts = self.extract_matches_points(matches, keypoints)
+            p0, p1, M = self.check_homography(pts)
 
-        pts_with_m = self.check_homography(pts)
-
-        self.draw_on_target_image([M for (p0, p1, M) in pts_with_m])
+            target["feature_keypoints"] = p0
+            target["target_keypoints"] = p1
+            target["homographic_matrixes"] = M
+        return target, len(matches) > 0
 
     def extract_matches_points(self, matches, targetKPs):
 
@@ -96,7 +108,7 @@ class Detect_feature():
 
         return pts
 
-    def draw_on_target_image(self, homograph_matrixes):
+    def draw_on_target_image(self, target, draw_points=False):
 
         for i in xrange(len(self.features)):
 
@@ -106,39 +118,57 @@ class Detect_feature():
             quad = np.float32(
                 [[[0, 0], [0, h - 1], [w - 1, h - 1], [w - 1, 0]]])
 
-            (translationx, translationy), rotation, (scalex, scaley), shear = self.getComponents(homograph_matrixes[i])
+            if "homographic_matrixes" in target:
 
-            quad2 = [translationx, translationy] + [scalex, scaley] * quad
-            cv2.polylines(self.targetImage, [np.int32(quad2)],
-                          True, (255, 255, 255), 2)
+                (translationx, translationy), _, (scalex, scaley), _ = self.getComponents(
+                    target["homographic_matrixes"][i])
 
-            quad = cv2.perspectiveTransform(quad, homograph_matrixes[i])
+                quad2 = [translationx, translationy] + [scalex, scaley] * quad
 
-            cv2.polylines(self.targetImage, [np.int32(quad)],
+                cv2.polylines(target["image"], [np.int32(quad2)],
+                              True, (255, 255, 255), 2)
+
+                quad = cv2.perspectiveTransform(
+                    quad, target["homographic_matrixes"][i])
+
+            cv2.polylines(target["image"], [np.int32(quad)],
                           True, (255, 255, 255), 1)
+            if draw_points and "target_keypoints" in target:
+                for (x, y) in target["target_keypoints"][
+                        i]:
+                    cv2.circle(target["image"], (x, y), 2, (255, 255, 0), 2)
 
-    def show_image(self):
+    def show_image(self, targetImage, img_out=None):
 
-        cv2.imshow('targetImage', self.targetImage)
+        cv2.imshow('targetImage', targetImage)
+        if img_out:
+            cv2.imshow('img_out', img_out)
         # cv2.waitKey()
         # cv2.destroyAllWindows()
 
-    def warpPerspective(self):
+    def warpPerspective(self, target):
 
-        return cv2.warpPerspective(self.targetImage,
-                                   np.linalg.inv(M),
+        return cv2.warpPerspective(target["image"],
+                                   np.linalg.inv(
+                                       target["homographic_matrixes"][0]),
                                    (self.features[0].image.shape[1],
-                                    self.targefeaturests[0].image.shape[0]))
+                                    self.features[0].image.shape[0]))
 
     def check_homography(self, pts):
 
-        new_pts = []
+        feature_keypoints = []
+        target_keypoints = []
+        homographic_matrixes = []
         for (p0, p1) in pts:
             M, status = cv2.findHomography(p0, p1, cv2.LMEDS, 5.0)
             status = status.ravel() != 0
-
-            new_pts.append((p0[status], p1[status], M))
-        return new_pts
+            print("p0", len(p0[status]))
+            print("p1", len(p1[status]))
+            feature_keypoints.append(p0[status])
+            target_keypoints.append(p1[status])
+            homographic_matrixes.append(M)
+            print("M", M)
+        return feature_keypoints, target_keypoints, homographic_matrixes
 
     '''((translationx, translationy), rotation, (scalex, scaley), shear)'''
 
