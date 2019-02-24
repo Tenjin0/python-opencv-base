@@ -55,3 +55,4 @@ if __name__ == "__main__":
 
     cap.release()
     cv2.destroyAllWindows()
+# https://stackoverflow.com/questions/10972438/detecting-garbage-homographies-from-findhomography-in-opencv
