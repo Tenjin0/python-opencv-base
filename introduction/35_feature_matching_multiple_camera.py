@@ -4,6 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import math
+from datetime import datetime
+
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 needed_dir = os.path.abspath(os.path.join(this_dir, '../.'))
@@ -35,18 +37,21 @@ if __name__ == "__main__":
 
     while cap.isOpened():
         _, frame = cap.read()
+        copyFrame = frame.copy()
+
         target, detected = app.track(frame, draw_points=True)
-        if (detected):
-            app.warpPerspective(target)
 
         img_out = app.draw_on_target_image(target, draw_points=True)
-        print(img_out)
         app.show_image(target['image'], img_out)
         wait = 0 if detected else 1
         key = cv2.waitKey(wait)
 
         if key & 0xff == ord("q"):
             break  # esc to quit
+        elif key & 0xff == ord("s"):
+            filename = datetime.now().strftime("%Y%m%d-%H%M%S") + ".jpg"
+            storeFolder = "data/tests"
+            f = cv2.imwrite(storeFolder + "/%s" % filename, copyFrame)
 
     cap.release()
     cv2.destroyAllWindows()
