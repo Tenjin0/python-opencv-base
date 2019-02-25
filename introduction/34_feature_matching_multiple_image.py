@@ -1,7 +1,7 @@
 import sys
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import os
 import math
 from datetime import datetime
@@ -20,7 +20,7 @@ if __name__ == "__main__":
     app.add_feature_from_path("elephant", "images/elephant.png")
     # app.add_feature_from_path("lipton", "images/lipton.jpg")
 
-    targetImage = cv2.imread("data/tests/20190224-231952.jpg")
+    targetImage = cv2.imread("data/s3/20181210-100711-4.jpg")
 
     target, detected = app.track(targetImage, draw_points=True)
 

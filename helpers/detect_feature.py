@@ -72,7 +72,7 @@ class Detect_feature:
         else:
             targetImage = target_filepath
 
-        target = {"image": targetImage}
+        target = {"image": targetImage, "features": []}
 
         keypoints, descrs = self.detect_feature(target["image"])
 
@@ -85,15 +85,9 @@ class Detect_feature:
         if len(matches) < self.MIN_MATCH_COUNT:
             matches = []
         else:
-            print("matches", len(matches))
             pts = self.extract_matches_points(matches, keypoints)
 
-            p0, p1, M, MV = self.check_homography(pts)
-
-            target["feature_keypoints"] = p0
-            target["target_keypoints"] = p1
-            target["homographic_matrixes"] = M
-            target["homographic_check"] = MV
+            self.check_homography(pts, target)
 
         return target, len(matches) > 0
 
@@ -119,19 +113,19 @@ class Detect_feature:
 
         img_out = self.warpPerspective(target)
         for i in xrange(len(self.features)):
-
+            feature_i = target["features"][i]
             h = self.features[i].image.shape[0]
             w = self.features[i].image.shape[1]
 
             quad = np.float32(
                 [[[0, 0], [0, h - 1], [w - 1, h - 1], [w - 1, 0]]])
 
-            if "homographic_matrixes" in target:
+            if "homographic_matrice" in feature_i:
 
                 (translationx, translationy), _, (
                     scalex,
                     scaley,
-                ), _ = self.getComponents(target["homographic_matrixes"][i])
+                ), _ = self.getComponents(feature_i["homographic_matrice"])
 
                 quad2 = [translationx, translationy] + [scalex, scaley] * quad
 
@@ -141,13 +135,13 @@ class Detect_feature:
                 )
 
                 quad = cv2.perspectiveTransform(
-                    quad, target["homographic_matrixes"][i])
+                    quad, feature_i["homographic_matrice"])
 
                 cv2.polylines(
                     target["image"], [np.int32(quad)], True, (255, 255, 255), 1
                 )
-            if draw_points and "target_keypoints" in target:
-                for (x, y) in target["target_keypoints"][i]:
+            if draw_points and "target_keypoints" in feature_i:
+                for (x, y) in feature_i["target_keypoints"]:
                     cv2.circle(target["image"], (x, y), 2, (255, 255, 0), 2)
 
             return img_out
@@ -161,10 +155,10 @@ class Detect_feature:
         # cv2.destroyAllWindows()
 
     def warpPerspective(self, target):
-        if ("homographic_matrixes" in target):
+        if (len(target["features"]) > 0 and "homographic_matrice" in target["features"][0]):
             return cv2.warpPerspective(
                 target["image"],
-                np.linalg.inv(target["homographic_matrixes"][0]),
+                np.linalg.inv(target["features"][0]["homographic_matrice"]),
                 (self.features[0].image.shape[1],
                  self.features[0].image.shape[0]),
             )
@@ -172,17 +166,20 @@ class Detect_feature:
             return None
 
     def nice_homography(self, M):
-
         det = M[0][0] * M[1][1] - M[1][0] * M[0][1]
+        print('det', det)
         if (det < 0):
             return False
         N1 = math.sqrt(M[0][0] * M[0][0] + M[1][0] * M[1][0])
+        print("N1", N1)
         if (N1 > 4 or N1 < 0.1):
             return False
         N2 = math.sqrt(M[0][1] * M[0][1] + M[1][1] * M[1][1])
+        print("N2", N2)
         if (N2 > 4 or N1 < 0.1):
             return False
         N3 = math.sqrt(M[2][0] * M[2][0] + M[2][1] * M[2][1])
+        print("N3", N3)
         if (N3 > 0.002):
             return False
 
@@ -192,19 +189,24 @@ class Detect_feature:
 
         feature_keypoints = []
         target_keypoints = []
-        homographic_matrixes = []
+        homographic_matrice = []
 
-        for (p0, p1) in pts:
-
+        for i in xrange(len(pts)):
+            (p0, p1) = pts[i]
             M, status = cv2.findHomography(p0, p1, cv2.LMEDS, 5.0)
             status = status.ravel() != 0
 
             if (self.nice_homography(M)):
-                feature_keypoints.append(p0[status])
-                target_keypoints.append(p1[status])
-                homographic_matrixes.append(M)
+                feature = {
+                    'id': i,
+                    'feature_keypoints': p0[status],
+                    'target_keypoints': p1[status],
+                    'homographic_matrice': M
+                }
+                target["features"].append(feature)
 
     """((translationx, translationy), rotation, (scalex, scaley), shear)"""
+
     def getComponents(self, normalised_homography):
 
         a = normalised_homography[0, 0]
