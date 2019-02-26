@@ -27,7 +27,7 @@ class Detect_feature:
             table_number=6,  # 12
             key_size=12,  # 20
             multi_probe_level=1,
-        )  # 2
+        )
 
         self.MIN_MATCH_COUNT = 10
 
@@ -60,14 +60,16 @@ class Detect_feature:
 
         keypoints, descrs = self.detector.detectAndCompute(
             image_to_process_copy, None)
-        if descrs is None:  # detectAndCompute returns descs=None if not keypoints found
+
+        # detectAndCompute returns descs=None if not keypoints found
+        if descrs is None:
             descrs = []
         return keypoints, descrs
 
     def track(self, target_filepath, draw_points=False):
 
         targetImage = None
-        if type(target_filepath) is "string":
+        if type(target_filepath) == "string":
             targetImage = cv2.imread(target_filepath)
         else:
             targetImage = target_filepath
@@ -113,7 +115,9 @@ class Detect_feature:
     def draw_on_target_image(self, target, draw_points=False):
 
         for feature_i in target["features"]:
-            img_out = self.warpPerspective(target)
+
+            self.warpPerspective(target)
+
             h = self.features[feature_i["id"]].image.shape[0]
             w = self.features[feature_i["id"]].image.shape[1]
 
@@ -144,20 +148,26 @@ class Detect_feature:
                 for (x, y) in feature_i["target_keypoints"]:
                     cv2.circle(target["image"], (x, y), 2, (255, 255, 0), 2)
 
-    def show_image(self, targetImage, img_out=None):
+    def foundFeatureById(self, id):
 
-        cv2.imshow("targetImage", targetImage)
-        if img_out is not None:
-            cv2.imshow("img_out", img_out)
-        # cv2.waitKey()
-        # cv2.destroyAllWindows()
+        return self.features[id]
+
+    def show_image(self, target):
+
+        cv2.imshow("targetImage", target["image"])
+
+        for feature_i in target["features"]:
+            cv2.imshow(self.foundFeatureById(
+                feature_i["id"]).name, feature_i["warp_perspective"])
 
     def warpPerspective(self, target):
+
         for feature_i in target["features"]:
-            warpPerspective = target["image"],
-            np.linalg.inv(feature_i["homographic_matrice"]),
-            (self.features[feature_i["id"]].image.shape[1],
-             self.features[feature_i["id"]].image.shape[0])
+            feature_i['warp_perspective'] = cv2.warpPerspective(
+                target["image"],
+                np.linalg.inv(feature_i["homographic_matrice"]),
+                (self.features[feature_i["id"]].image.shape[1],
+                 self.features[feature_i["id"]].image.shape[0]))
 
     def nice_homography(self, M):
 
@@ -184,14 +194,10 @@ class Detect_feature:
 
     def check_homography(self, pts, target):
 
-        feature_keypoints = []
-        target_keypoints = []
-        homographic_matrice = []
-
         for i in xrange(len(pts)):
             (p0, p1) = pts[i]
             M = None
-            Status = None
+            status = None
             try:
                 M, status = cv2.findHomography(p0, p1, cv2.LMEDS, 5.0)
             except Exception:
