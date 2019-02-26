@@ -25,7 +25,7 @@ if __name__ == "__main__":
     app = Detect_feature()
 
     app.add_feature_from_path("elephant", "images/elephant.png")
-    # app.add_feature_from_path("lipton", "images/lipton.jpg")
+    app.add_feature_from_path("lipton", "images/lipton.jpg")
 
     # targetImage = cv2.imread('data/s3/20181210-100711-4.jpg')
     # targetCopy = cv2.cvtColor(targetImage, cv2.COLOR_BGR2GRAY)
@@ -40,7 +40,6 @@ if __name__ == "__main__":
         copyFrame = frame.copy()
 
         target, detected = app.track(frame, draw_points=True)
-
         img_out = app.draw_on_target_image(target, draw_points=True)
         app.show_image(target['image'], img_out)
         wait = 0 if detected else 1

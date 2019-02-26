@@ -88,8 +88,9 @@ class Detect_feature:
             pts = self.extract_matches_points(matches, keypoints)
 
             self.check_homography(pts, target)
-
-        return target, len(matches) > 0
+            print(len(matches) > 0, len(target["features"]) > 0, len(
+                matches) > 0 and len(target["features"]) > 0)
+        return target, len(matches) > 0 and len(target["features"]) > 0
 
     def extract_matches_points(self, matches, targetKPs):
 
@@ -111,11 +112,10 @@ class Detect_feature:
 
     def draw_on_target_image(self, target, draw_points=False):
 
-        img_out = self.warpPerspective(target)
-        for i in xrange(len(self.features)):
-            feature_i = target["features"][i]
-            h = self.features[i].image.shape[0]
-            w = self.features[i].image.shape[1]
+        for feature_i in target["features"]:
+            img_out = self.warpPerspective(target)
+            h = self.features[feature_i["id"]].image.shape[0]
+            w = self.features[feature_i["id"]].image.shape[1]
 
             quad = np.float32(
                 [[[0, 0], [0, h - 1], [w - 1, h - 1], [w - 1, 0]]])
@@ -144,8 +144,6 @@ class Detect_feature:
                 for (x, y) in feature_i["target_keypoints"]:
                     cv2.circle(target["image"], (x, y), 2, (255, 255, 0), 2)
 
-            return img_out
-
     def show_image(self, targetImage, img_out=None):
 
         cv2.imshow("targetImage", targetImage)
@@ -155,31 +153,30 @@ class Detect_feature:
         # cv2.destroyAllWindows()
 
     def warpPerspective(self, target):
-        if (len(target["features"]) > 0 and "homographic_matrice" in target["features"][0]):
-            return cv2.warpPerspective(
-                target["image"],
-                np.linalg.inv(target["features"][0]["homographic_matrice"]),
-                (self.features[0].image.shape[1],
-                 self.features[0].image.shape[0]),
-            )
-        else:
-            return None
+        for feature_i in target["features"]:
+            warpPerspective = target["image"],
+            np.linalg.inv(feature_i["homographic_matrice"]),
+            (self.features[feature_i["id"]].image.shape[1],
+             self.features[feature_i["id"]].image.shape[0])
 
     def nice_homography(self, M):
+
+        if M is None:
+            return False
         det = M[0][0] * M[1][1] - M[1][0] * M[0][1]
-        print('det', det)
+
         if (det < 0):
             return False
         N1 = math.sqrt(M[0][0] * M[0][0] + M[1][0] * M[1][0])
-        print("N1", N1)
+
         if (N1 > 4 or N1 < 0.1):
             return False
         N2 = math.sqrt(M[0][1] * M[0][1] + M[1][1] * M[1][1])
-        print("N2", N2)
+
         if (N2 > 4 or N1 < 0.1):
             return False
         N3 = math.sqrt(M[2][0] * M[2][0] + M[2][1] * M[2][1])
-        print("N3", N3)
+
         if (N3 > 0.002):
             return False
 
@@ -193,10 +190,17 @@ class Detect_feature:
 
         for i in xrange(len(pts)):
             (p0, p1) = pts[i]
-            M, status = cv2.findHomography(p0, p1, cv2.LMEDS, 5.0)
+            M = None
+            Status = None
+            try:
+                M, status = cv2.findHomography(p0, p1, cv2.LMEDS, 5.0)
+            except Exception:
+                print("p0", p0)
+                print("p1", p1)
+                raise
             status = status.ravel() != 0
-
-            if (self.nice_homography(M)):
+            is_homography_correct = self.nice_homography(M)
+            if (is_homography_correct):
                 feature = {
                     'id': i,
                     'feature_keypoints': p0[status],
