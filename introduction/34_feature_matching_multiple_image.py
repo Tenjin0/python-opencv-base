@@ -14,7 +14,8 @@ if __name__ == "__main__":
 
     app = Detect_feature()
 
-    app.add_feature_from_path("elephant", "images/elephant.png")
+    app.add_feature_from_path("elephant_old", "images/elephant_old.png")
+    app.add_feature_from_path("elephant_new", "images/elephant_new.png")
     app.add_feature_from_path("lipton", "images/lipton.jpg")
 
     targetImage = cv2.imread("data/s3/20181210-100711-4.jpg")

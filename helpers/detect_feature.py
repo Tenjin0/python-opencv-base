@@ -90,8 +90,6 @@ class Detect_feature:
             pts = self.extract_matches_points(matches, keypoints)
 
             self.check_homography(pts, target)
-            print(len(matches) > 0, len(target["features"]) > 0, len(
-                matches) > 0 and len(target["features"]) > 0)
         return target, len(matches) > 0 and len(target["features"]) > 0
 
     def extract_matches_points(self, matches, targetKPs):
@@ -199,32 +197,34 @@ class Detect_feature:
             M = None
             status = None
             try:
-                M, status = cv2.findHomography(p0, p1, cv2.LMEDS, 5.0)
+                if len(p0) > 0 and len(p1) > 0:
+                    M, status = cv2.findHomography(p0, p1, cv2.LMEDS, 5.0)
+                    status = status.ravel() != 0
+                    is_homography_correct = self.nice_homography(M)
+                    if (is_homography_correct):
+                        feature = {
+                            'id': i,
+                            'feature_keypoints': p0[status],
+                            'target_keypoints': p1[status],
+                            'homographic_matrice': M
+                        }
+                        target["features"].append(feature)
             except Exception:
                 print("p0", p0)
                 print("p1", p1)
+                print("M", M)
+                print("status", status)
                 raise
-            status = status.ravel() != 0
-            is_homography_correct = self.nice_homography(M)
-            if (is_homography_correct):
-                feature = {
-                    'id': i,
-                    'feature_keypoints': p0[status],
-                    'target_keypoints': p1[status],
-                    'homographic_matrice': M
-                }
-                target["features"].append(feature)
 
     """((translationx, translationy), rotation, (scalex, scaley), shear)"""
-
     def getComponents(self, normalised_homography):
 
-        a = normalised_homography[0, 0]
-        b = normalised_homography[0, 1]
-        c = normalised_homography[0, 2]
-        d = normalised_homography[1, 0]
-        e = normalised_homography[1, 1]
-        f = normalised_homography[1, 2]
+        a = normalised_homography[0, 0]  # cos §
+        b = normalised_homography[0, 1]  # sin §
+        c = normalised_homography[0, 2]  # transX
+        d = normalised_homography[1, 0]  # -sin §
+        e = normalised_homography[1, 1]  # cos §
+        f = normalised_homography[1, 2]  # transY
 
         p = math.sqrt(a * a + b * b)
         r = (a * e - b * d) / (p)
