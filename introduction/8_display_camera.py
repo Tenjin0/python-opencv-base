@@ -14,7 +14,7 @@ def show_webcam(mirror=False):
         if mirror:
             img = cv2.flip(img, 1)
         cv2.imshow('my webcam', img)
-        if cv2.waitKey(1) == 27: 
+        if cv2.waitKey(1) == 27:
             break  # esc to quit
     cv2.destroyAllWindows()
 
