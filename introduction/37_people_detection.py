@@ -27,3 +27,4 @@ if __name__ == "__main__":
 
 
 # https://www.pyimagesearch.com/2015/11/09/pedestrian-detection-opencv/
+# https://www.pyimagesearch.com/2014/11/10/histogram-oriented-gradients-object-detection/
