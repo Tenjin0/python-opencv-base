@@ -217,6 +217,7 @@ class Detect_feature:
                 raise
 
     """((translationx, translationy), rotation, (scalex, scaley), shear)"""
+
     def getComponents(self, normalised_homography):
 
         a = normalised_homography[0, 0]  # cos §

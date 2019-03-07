@@ -1,45 +1,24 @@
 import cv2
 import numpy as np
 import os
+import sys
 
+this_dir = os.path.dirname(os.path.abspath(__file__))
+needed_dir = os.path.abspath(os.path.join(this_dir, '../.'))
+sys.path.insert(0, needed_dir)
 
-def is_inside(o, i):
-    ox, oy, ow, oh = o
-    ix, iy, iw, ih = i
-    return ox > ix and oy > iy and ox + ow < ix + iw and oy + oh < iy + ih
-
-
-def draw_person(image, person):
-    x, y, w, h = person
-    cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 255), 2)
-
-
-if __name__ == "__main__":
-
-    img_path = os.path.join(os.getcwd(), "images/people.jpg")
-    img = cv2.imread(img_path)
-    hog = cv2.HOGDescriptor()
-    hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
-
-    found, w = hog.detectMultiScale(
-        img, winStride=(4, 4), padding=(16, 16), scale=1.06)
-
-    found_filtered = []
-    for ri, r in enumerate(found):
-        for qi, q in enumerate(found):
-            if ri != qi and is_inside(r, q):
-                break
-        else:
-            found_filtered.append(r)
-
-    for person in found_filtered:
-        draw_person(img, person)
-
-    cv2.imshow("people detection", img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
+from helpers.detect_people import Detect_people
 
 # https://www.pyimagesearch.com/2015/11/09/pedestrian-detection-opencv/
 # https://www.pyimagesearch.com/2014/11/10/histogram-oriented-gradients-object-detection/
 # https://github.com/alexander-hamme/Pedestrian_Detector
+
+
+detector = Detect_people()
+currentDirectory = os.path.dirname(os.path.abspath(__file__))
+img = cv2.imread(os.path.join(currentDirectory, "..", "images", "people.jpg"))
+
+CALIBRATION_MODE_9 = (400, (9, 9), (32, 32), 1.08, 0.999)
+
+detector.set_calibration(tup=CALIBRATION_MODE_9)
+detector.find_people(img)

@@ -17,6 +17,7 @@ opencv-contrib-python = "*"
 matplotlib = "*"
 bokeh = "*"
 pandas = "*"
+imutils = "*"
 
 [requires]
 python_version = "3.7"
