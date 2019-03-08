@@ -16,9 +16,7 @@ from helpers.detect_people import Detect_people
 
 detector = Detect_people()
 currentDirectory = os.path.dirname(os.path.abspath(__file__))
-img = cv2.imread(os.path.join(currentDirectory, "..", "images", "people.jpg"))
+img = cv2.imread(os.path.join(currentDirectory, "..", "images", "1a_original.jpg"))
 
-CALIBRATION_MODE_9 = (400, (9, 9), (32, 32), 1.08, 0.999)
-
-detector.set_calibration(tup=CALIBRATION_MODE_9)
+detector.set_calibration(2)
 detector.find_people(img)
