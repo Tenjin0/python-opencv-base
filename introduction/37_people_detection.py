@@ -16,7 +16,13 @@ from helpers.detect_people import Detect_people
 
 detector = Detect_people()
 currentDirectory = os.path.dirname(os.path.abspath(__file__))
-img = cv2.imread(os.path.join(currentDirectory, "..", "images", "1a_original.jpg"))
+img = cv2.imread(os.path.join(currentDirectory, "..", "images", "1_original.jpg"))
 
+detector.DRAW_RAW_RECT = True
+detector.DRAW_RECT = True
+detector.SHOW_IMAGES = True
 detector.set_calibration(2)
-detector.find_people(img)
+image, _, _ = detector.find_people(img)
+detector.draw_image(image)
+
+# detector.try_all_calibration_modes(img)
