@@ -8,7 +8,9 @@ datapath = normpath(join(currentDirectory, "..", "training", "cars_light"))
 
 img1 = cv2.imread(join(datapath, "neg-0.pgm"), cv2.IMREAD_GRAYSCALE)
 
-kaze = cv2.KAZE_create()
-kpt1, desc1 = kaze.detectAndCompute(img1, None)
-
-print(desc1)
+orb = cv2.ORB_create(nfeatures=100000, scoreType=cv2.ORB_FAST_SCORE)
+# kaze = cv2.KAZE_create()
+kpt = orb.detect(img1)
+# kpt1, desc1 = orb.detectAndCompute(img1, None)
+print(kpt)
+# print(desc1)

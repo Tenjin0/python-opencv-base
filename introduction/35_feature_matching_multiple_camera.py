@@ -1,15 +1,13 @@
 import sys
 import cv2
-import numpy as np
-import matplotlib.pyplot as plt
 import os
-import math
 from datetime import datetime
 
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 needed_dir = os.path.abspath(os.path.join(this_dir, '../.'))
 sys.path.insert(0, needed_dir)
+
 
 from helpers.detect_feature import Detect_feature
 

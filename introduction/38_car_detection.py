@@ -14,6 +14,10 @@ def path(cls, i):
     return "%s/%s%d.pgm" % (datapath, cls, i)
 
 
+detect = cv2.ORB_create()
+extract = cv2.ORB_create()
+
+
 def extract_kaze(fn):
 
     im = cv2.imread(fn, 0)
@@ -21,9 +25,6 @@ def extract_kaze(fn):
 
 # img = cv2.imread(os.path.join(currentDirectory, "..", "images", "1a_original.jpg"))
 
-
-detect = cv2.KAZE_create()
-extract = cv2.KAZE_create()
 
 flann_params = dict(algorithm=1, trees=5)
 flann = cv2.FlannBasedMatcher(flann_params, {})
