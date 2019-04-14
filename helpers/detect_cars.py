@@ -21,11 +21,19 @@ def extract_kaze():
     pass
 
 
-def train_cars(fn):
+def train_car():
+    pass
 
-    im = cv2.imread(fn, 0)
-    descriptor = kaze.detectAndCompute(im, None)[1]
-    descriptor2 = kaze.compute(im, kaze.detect(im))[1]
-    print(descriptor)
-    print(descriptor2)
-    bow_kmeans_trainer.add(descriptor)
+
+def train_cars(pos_glob, neg_glob):
+
+    flann_params = dict(algorithm=1, trees=5)
+    flann = cv2.FlannBasedMatcher(flann_params, {})
+    extract_bow = cv2.BOWImgDescriptorExtractor(kaze, flann)
+
+    for i in range(SAMPLES):
+        if i <= len(pos_glob):
+            fn = pos_glob[i]
+            im = cv2.imread(fn, 0)
+            descriptor = kaze.detectAndCompute(im, None)[1]
+            # bow_kmeans_trainer.add( )
