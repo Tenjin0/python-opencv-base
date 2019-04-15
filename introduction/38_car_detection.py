@@ -9,13 +9,12 @@ currentDirectory = os.path.dirname(os.path.abspath(__file__))
 datapath = normpath(join(currentDirectory, "..", "training", "cars_light"))
 imagepath = normpath(join(currentDirectory, "..", "images"))
 
+detect = cv2.ORB_create()
+extract = cv2.ORB_create()
+
 
 def path(cls, i):
     return "%s/%s%d.pgm" % (datapath, cls, i)
-
-
-detect = cv2.ORB_create()
-extract = cv2.ORB_create()
 
 
 def extract_kaze(fn):

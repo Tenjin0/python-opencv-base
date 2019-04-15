@@ -1,8 +1,9 @@
+
 import os
 import sys
-import cv2
 from glob import glob
 from os import path
+
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 needed_dir = os.path.abspath(os.path.join(this_dir, '../.'))
@@ -11,8 +12,11 @@ sys.path.insert(0, needed_dir)
 from helpers.detect_cars import train_cars
 
 currentDirectory = path.dirname(os.path.abspath(__file__))
-trainingDirectory = os.path.abspath(path.join(currentDirectory, "..", "training"))
-cars_lightDir = path.join(trainingDirectory, "cars")
+projectDirectory = os.path.abspath(
+    path.join(currentDirectory, ".."))
+trainingDirectory = path.join(projectDirectory, "training")
+imagesDirectory = path.join(projectDirectory, "images")
+cars_lightDir = path.join(trainingDirectory, "cars_light")
 
 pos, neg = "pos-", "neg-"
 
@@ -38,4 +42,8 @@ pos_glog = list(pos_glog_filter)
 neg_glog_filter = filter(negative_glob, glob)
 neg_glog = list(neg_glog_filter)
 
-train_cars(pos_glog, neg_glog)
+print(len(pos_glog), len(neg_glog))
+svm, extractor = train_cars(pos_glog, neg_glog)
+
+car, notcar = path.join(imagesDirectory, "car.jpg"), path.join(
+    imagesDirectory, "bb.jpg")
