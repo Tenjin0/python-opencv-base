@@ -43,7 +43,7 @@ neg_glog_filter = filter(negative_glob, glob)
 neg_glog = list(neg_glog_filter)
 
 print(len(pos_glog), len(neg_glog))
-svm, extractor = train_cars(pos_glog, neg_glog)
+train_cars(pos_glog, neg_glog)
 
-car, notcar = path.join(imagesDirectory, "car.jpg"), path.join(
-    imagesDirectory, "bb.jpg")
+# car, notcar = path.join(imagesDirectory, "car.jpg"), path.join(
+#     imagesDirectory, "bb.jpg")
