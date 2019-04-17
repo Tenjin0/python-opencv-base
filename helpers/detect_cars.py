@@ -40,13 +40,14 @@ def train_cars(pos_glob, neg_glob):
     traindata, trainlabels = [], []
 
     for i in range(SAMPLES):
+
         if i <= len(pos_glob):
             fn = pos_glob[i]
             print(i, fn)
             impos = cv2.imread(fn, 0)
             descriptor = kaze.detectAndCompute(impos, None)[1]
             bow_kmeans_trainer.add(descriptor)
-            bow_descriptor = extract_bow.compute(impos, detect.detect(impos))
+            bow_descriptor = extract_bow.compute(impos, detect.detect(impos, None))
             traindata.extend(bow_descriptor)
             trainlabels.append(1)
 

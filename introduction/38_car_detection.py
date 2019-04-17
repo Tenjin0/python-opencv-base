@@ -9,8 +9,8 @@ currentDirectory = os.path.dirname(os.path.abspath(__file__))
 datapath = normpath(join(currentDirectory, "..", "training", "cars_light"))
 imagepath = normpath(join(currentDirectory, "..", "images"))
 
-detect = cv2.ORB_create()
-extract = cv2.ORB_create()
+detect = cv2.KAZE_create()
+extract = cv2.KAZE_create()
 
 
 def path(cls, i):
@@ -28,14 +28,15 @@ def extract_kaze(fn):
 flann_params = dict(algorithm=1, trees=5)
 flann = cv2.FlannBasedMatcher(flann_params, {})
 
-bow_kmeans_trainer = cv2.BOWKMeansTrainer(1000)
+bow_kmeans_trainer = cv2.BOWKMeansTrainer(40)
 
 extract_bow = cv2.BOWImgDescriptorExtractor(extract, flann)
 
 pos, neg = "pos-", "neg-"
-SAMPLES = 40
+SAMPLES = 1
 
 for i in range(SAMPLES):
+    i = 154
     try:
         bow_kmeans_trainer.add(extract_kaze(path(pos, i)))
     except:
@@ -57,16 +58,17 @@ def bow_features(fn):
 traindata, trainlabels = [], []
 
 for i in range(SAMPLES):
+    i = 154
     try:
         traindata.extend(bow_features(path(pos, i)))
         trainlabels.append(1)
     except:
-        print("image", pos, i)
+        print("train image", pos, i)
     try:
         traindata.extend(bow_features(path(neg, i)))
         trainlabels.append(-1)
     except:
-        print("image", neg, i)
+        print("train image", neg, i)
 
 svm = cv2.ml.SVM_create()
 
@@ -89,11 +91,11 @@ car_predict = predict(car)
 not_car_predict = predict(notcar)
 
 font = cv2.FONT_HERSHEY_SIMPLEX
-
+print(car_predict)
 if (car_predict[1][0][0] == 1.0):
     cv2.putText(car_img, 'Car Detected', (10, 30), font, 1,
                 (0, 255, 0), 2, cv2.LINE_AA)
-
+print(not_car_predict)
 if (not_car_predict[1][0][0] == -1.0):
     cv2.putText(notcar_img, 'Car Not Detected', (10, 30),
                 font, 1, (0, 0, 255), 2, cv2.LINE_AA)
